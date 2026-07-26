@@ -3,6 +3,8 @@ import axios from "axios";
 import { mergeServerCart } from "./cart.action";
 import { getWishlist } from "./wishlist.action";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:1980';
+
 // Le backend ne renvoie pas un format d'erreur unique : la validation
 // (express-validator) renvoie { errors: [{msg, path, ...}] }, alors que les
 // erreurs "métier" (email deja utilise, etc.) renvoient { message }. Aucune
@@ -19,7 +21,7 @@ const extractAuthError = (error) => {
 export const register = (newUser, navigate) => async (dispatch) => {
     dispatch({ type: LOAD_AUTH })
     try {
-        const result = await axios.post("/api/auth/register", newUser)
+        const result = await axios.post(`${API_URL}/api/auth/register`, newUser)
         localStorage.setItem("token", result.data.token);
         dispatch({ type: SUCCESS_AUTH, payload: result.data })
         dispatch(mergeServerCart())
@@ -35,7 +37,7 @@ export const register = (newUser, navigate) => async (dispatch) => {
 export const login = (user , navigate ) => async (dispatch) => {
     dispatch({ type: LOAD_AUTH })
     try {
-        const result = await axios.post("/api/auth/login", user)
+        const result = await axios.post(`${API_URL}/api/auth/login`, user)
         localStorage.setItem("token", result.data.token);
         dispatch({ type: SUCCESS_AUTH, payload: result.data })
         dispatch(mergeServerCart())
@@ -55,7 +57,7 @@ export const current = () => async (dispatch) => {
             }
         
     }
-        const result = await axios.get("/api/auth/current", config)
+        const result = await axios.get(`${API_URL}/api/auth/current`, config)
     dispatch({ type: CURRENT_AUTH, payload: result.data })
     dispatch(mergeServerCart())
     dispatch(getWishlist())
@@ -77,7 +79,7 @@ export const logout = (navigate) => async (dispatch) => {
 export const updateProfile = (updates) => async (dispatch) => {
     try {
         const config = { headers: { authorization: localStorage.getItem("token") } };
-        const result = await axios.patch("/api/auth/profile", updates, config);
+        const result = await axios.patch(`${API_URL}/api/auth/profile`, updates, config);
         dispatch({ type: UPDATE_USER_SUCCESS, payload: result.data });
         return { success: true };
     } catch (error) {
@@ -91,7 +93,7 @@ export const updateProfile = (updates) => async (dispatch) => {
 export const addAddress = (address) => async (dispatch) => {
     try {
         const config = { headers: { authorization: localStorage.getItem("token") } };
-        const result = await axios.post("/api/auth/addresses", address, config);
+        const result = await axios.post(`${API_URL}/api/auth/addresses`, address, config);
         dispatch({ type: UPDATE_USER_SUCCESS, payload: result.data });
         return { success: true };
     } catch (error) {
@@ -103,7 +105,7 @@ export const addAddress = (address) => async (dispatch) => {
 export const updateAddress = (addressId, address) => async (dispatch) => {
     try {
         const config = { headers: { authorization: localStorage.getItem("token") } };
-        const result = await axios.patch(`/api/auth/addresses/${addressId}`, address, config);
+        const result = await axios.patch(`${API_URL}/api/auth/addresses/${addressId}`, address, config);
         dispatch({ type: UPDATE_USER_SUCCESS, payload: result.data });
         return { success: true };
     } catch (error) {
@@ -115,7 +117,7 @@ export const updateAddress = (addressId, address) => async (dispatch) => {
 // composant n'a besoin de cet etat, la page gere son propre affichage de succes/erreur
 export const forgotPassword = async (email) => {
     try {
-        const { data } = await axios.post("/api/auth/forgot-password", { email });
+        const { data } = await axios.post(`${API_URL}/api/auth/forgot-password`, { email });
         return { success: true, message: data.message };
     } catch (error) {
         return { success: false, error: extractAuthError(error) };
@@ -125,7 +127,7 @@ export const forgotPassword = async (email) => {
 // applique le nouveau mot de passe (page ResetPassword)
 export const resetPassword = async (token, password) => {
     try {
-        const { data } = await axios.post(`/api/auth/reset-password/${token}`, { password });
+        const { data } = await axios.post(`${API_URL}/api/auth/reset-password/${token}`, { password });
         return { success: true, message: data.message };
     } catch (error) {
         return { success: false, error: extractAuthError(error) };
@@ -136,7 +138,7 @@ export const resetPassword = async (token, password) => {
 export const deleteAddress = (addressId) => async (dispatch) => {
     try {
         const config = { headers: { authorization: localStorage.getItem("token") } };
-        const result = await axios.delete(`/api/auth/addresses/${addressId}`, config);
+        const result = await axios.delete(`${API_URL}/api/auth/addresses/${addressId}`, config);
         dispatch({ type: UPDATE_USER_SUCCESS, payload: result.data });
         return { success: true };
     } catch (error) {

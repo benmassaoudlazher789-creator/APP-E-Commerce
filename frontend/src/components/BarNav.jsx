@@ -12,6 +12,8 @@ import { selectCartCount } from "../JS/selectors/cart.selectors";
 import { formatPrice } from "../utils/format";
 import "./BarNav.css";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:1980';
+
 const ACCOUNT_ICON = (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <circle cx="12" cy="8" r="3.6" stroke="currentColor" strokeWidth="1.8" />
@@ -51,7 +53,7 @@ function BarNav() {
         if (!q) return;
         const timer = setTimeout(() => {
             axios
-                .get("/api/product/search", { params: { q } })
+                .get(`${API_URL}/api/product/search`, { params: { q } })
                 .then(({ data }) => setRawSuggestions((data.Prod || []).slice(0, 5)))
                 .catch(() => setRawSuggestions([]));
         }, 300);

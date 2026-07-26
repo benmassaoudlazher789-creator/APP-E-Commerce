@@ -6,6 +6,8 @@ import {
     PAYMENT_RESET,
 } from "../actionsType/payment.actionType";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:1980';
+
 // Le paiement est traite cote serveur (/api/payment/process) plutot que simule dans le
 // navigateur, pour qu'un client ne puisse pas forger un succes. Aucune cle Stripe n'est
 // configuree cote backend non plus : le controller simule une passerelle (meme carte de
@@ -13,7 +15,7 @@ import {
 export const processPayment = (paymentDetails, amount) => async (dispatch) => {
     dispatch({ type: PAYMENT_LOADING });
     try {
-        const { data } = await axios.post("/api/payment/process", {
+        const { data } = await axios.post(`${API_URL}/api/payment/process`, {
             method: paymentDetails.method,
             cardNumber: paymentDetails.cardNumber,
             expiry: paymentDetails.expiry,

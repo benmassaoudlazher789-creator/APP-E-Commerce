@@ -7,7 +7,8 @@ import {
     FAIL_ORDER,
 } from "../actionsType/order.actionType";
 
-const API_URL = "/api/order";
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:1980';
+const API_URL = `${BASE_URL}/api/order`;
 
 // place la commande cote backend (invite ou connecte : le token est envoye s'il existe)
 export const placeOrder = (orderData) => async (dispatch) => {

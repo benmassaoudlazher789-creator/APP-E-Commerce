@@ -7,6 +7,8 @@ import {
     SET_CART,
 } from "../actionsType/cart.actionType";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:1980';
+
 // trouve le stock disponible pour une pointure donnée
 const stockFor = (product, size) =>
     product.sizes?.find((s) => s.size === size)?.stock ?? 0;
@@ -49,7 +51,7 @@ export const mergeServerCart = () => async (dispatch, getState) => {
     try {
         const token = localStorage.getItem("token");
         if (!token) return;
-        const { data } = await axios.get("/api/cart", { headers: { authorization: token } });
+        const { data } = await axios.get(`${API_URL}/api/cart`, { headers: { authorization: token } });
         const serverItems = data.items || [];
         const localItems = getState().cartReducer.items;
 

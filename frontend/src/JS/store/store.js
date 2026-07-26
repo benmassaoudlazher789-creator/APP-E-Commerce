@@ -3,6 +3,8 @@ import { thunk } from "redux-thunk";
 import axios from "axios";
 import rootReducer from "../reducers/index";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:1980';
+
 const CART_STORAGE_KEY = "cart";
 
 // rehydratation du panier depuis le localStorage au chargement
@@ -38,7 +40,7 @@ store.subscribe(() => {
         const token = localStorage.getItem("token");
         if (token) {
             axios
-                .put("/api/cart", { items: currentItems }, { headers: { authorization: token } })
+                .put(`${API_URL}/api/cart`, { items: currentItems }, { headers: { authorization: token } })
                 .catch(() => {
                     // echec silencieux : le panier reste correct en local/localStorage
                 });
