@@ -1,0 +1,44 @@
+:root {
+  /* colors */
+  --color-primary: #e63946;
+  --color-primary-dark: #c1121f;
+  --color-bg: #ffffff;
+  --color-surface: #f8f9fa;
+  --color-text: #1d1d1d;
+  --color-text-secondary: #6c757d;
+  --color-border: #e5e5e5;
+  --color-success: #2a9d8f;
+  --color-error: #d62828;
+
+  /* typography */
+  --font-sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Anton", "Inter", system-ui, sans-serif;
+
+  /* hero graphic */
+  --color-ink: #17100f;
+
+  /* spacing (8px grid) */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --space-12: 96px;
+
+  /* misc */
+  --radius: 8px;
+  --shadow-card: 0 4px 16px rgba(29, 29, 29, 0.06);
+  --shadow-card-hover: 0 12px 28px rgba(29, 29, 29, 0.12);
+  --transition: 240ms ease;
+}
+
+/* Coupe toutes les transitions CSS basees sur var(--transition) en un seul
+   endroit pour les utilisateurs qui demandent moins de mouvement (les
+   animations Framer Motion gerent deja prefers-reduced-motion elles-memes
+   via useReducedMotion(), voir PageTransition/Reveal/ProductCard). */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition: 0ms;
+  }
+}

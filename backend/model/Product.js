@@ -23,7 +23,37 @@ const productSchema = new mongoose.Schema({
         type : String,
 
     },
-    //pour faire relation entre collection User et product 
+    //galerie d'images additionnelles
+    images :{
+        type : [String],
+        default : [],
+    },
+    brand :{
+        type : String,
+        trim : true,
+    },
+    category :{
+        type : String,
+        trim : true,
+        default : "shoes",
+    },
+    //pour filtrer Men / Women / Kids dans le catalogue
+    gender :{
+        type : String,
+        enum : ["men", "women", "kids", "unisex"],
+        default : "unisex",
+    },
+    //stock disponible par pointure
+    sizes :{
+        type : [
+            {
+                size : { type : Number, required : true },
+                stock : { type : Number, required : true, default : 0 },
+            },
+        ],
+        default : [],
+    },
+    //pour faire relation entre collection User et product
     createdBy :{
         type : mongoose.Schema.Types.ObjectId,
         ref : "user",

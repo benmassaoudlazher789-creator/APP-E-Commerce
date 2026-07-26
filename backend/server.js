@@ -12,8 +12,14 @@ const connectDB = require("./config/connectDB");
 connectDB();
 //routes
 app.use("/api/auth", require("./routes/auth.routes"));
-//route des products 
+//route des products
 app.use("/api/product", require("./routes/prod.routes"));
+//route des commandes
+app.use("/api/order", require("./routes/order.routes"));
+//route du paiement
+app.use("/api/payment", require("./routes/payment.routes"));
+//route du panier serveur
+app.use("/api/cart", require("./routes/cart.routes"));
 
 
 

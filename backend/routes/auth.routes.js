@@ -1,13 +1,24 @@
 //require
 const express = require("express");
-const { register, login } = require("../controller/auth.controller");
+const {
+    register,
+    login,
+    updateProfile,
+    addAddress,
+    updateAddress,
+    deleteAddress,
+    forgotPassword,
+    resetPassword,
+    getWishlist,
+    addToWishlist,
+    removeFromWishlist,
+} = require("../controller/auth.controller");
 const { registerValidation, validation, loginValidation } = require("../middlewares/validator");
 //instance du routeur d'express
 const router = express.Router();
 const isAuth = require("../middlewares/isAuth");
-const cloudinary = require("../util/cloudinary");
+
 const upload = require("../util/multer");
-const User = require("../model/User");
 
 
 
@@ -24,29 +35,35 @@ router.post("/login", loginValidation(), validation, login);
 
 //current == user
 router.get("/current", isAuth, (req, res) => {
-    //personne connectée
-    res.json((userConnected = { name: req.user.name, email: req.user.email, }));
+    //personne connectée : reponse enveloppee dans "user" comme register/login,
+    //pour que authReducer (qui lit payload.user) fonctionne apres un refresh
+    res.json({
+        user: {
+            name: req.user.name,
+            email: req.user.email,
+            phone: req.user.phone,
+            imageProfile: req.user.imageProfile,
+            isAdmin: req.user.isAdmin,
+            addresses: req.user.addresses,
+        },
+    });
 });
 
-router.post("/", upload.single("image"), async (req, res) => {
-    try {
-        // Upload image to cloudinary
-        const result = await cloudinary.uploader.upload(req.file.path);
-        // Create new user
-        let user = new User({
-            name: req.body.name,
-            profile_img: result.secure_url,
-            cloudinary_id: result.public_id,
-        });
-        // save user details in mongodb
-        await user.save();
-        res.status(200)
-            .send({
-                user
-            });
-    } catch (err) {
-        console.log(err);
-    }
-});
+//mise a jour du profil (nom, email, telephone, mot de passe)
+router.patch("/profile", isAuth, updateProfile);
+
+//adresses de livraison enregistrees dans le profil
+router.post("/addresses", isAuth, addAddress);
+router.patch("/addresses/:addressId", isAuth, updateAddress);
+router.delete("/addresses/:addressId", isAuth, deleteAddress);
+
+//reset de mot de passe
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
+
+//favoris (wishlist)
+router.get("/wishlist", isAuth, getWishlist);
+router.post("/wishlist/:productId", isAuth, addToWishlist);
+router.delete("/wishlist/:productId", isAuth, removeFromWishlist);
 
 module.exports = router;

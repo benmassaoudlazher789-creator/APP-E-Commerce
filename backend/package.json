@@ -8,7 +8,8 @@
   "main": "server",
   "scripts": {
     "dev": "npx nodemon server",
-    "start": "node server"
+    "start": "node server",
+    "seed:products": "node scripts/seedRealProducts.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

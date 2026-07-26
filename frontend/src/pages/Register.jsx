@@ -1,11 +1,12 @@
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { useState } from 'react';
-import FormGroup from 'react-bootstrap/esm/FormGroup';
-import FormText from 'react-bootstrap/esm/FormText';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { register } from "../JS/actions/auth.action";
 import { useNavigate } from "react-router-dom";
+import "./Auth.css";
+import "../styles/tailwind-scoped.css";
+import AnimatedInput from "@/components/ui/smoothui/animated-input";
 
 function Register() {
   const [newUser, setNewUser] = useState({
@@ -17,11 +18,12 @@ function Register() {
   });
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const errors = useSelector(state => state.authReducer.errors)
   const handleChange = (e) => {
     setNewUser({ ...newUser, [e.target.name]: e.target.value });
   }
   const handleSubmit = (e) => {
-    e.preventDefault() // empécher le chargement du form 
+    e.preventDefault() // empécher le chargement du form
     const userToRegister = {
 
       name: newUser.name.trim(),
@@ -29,56 +31,64 @@ function Register() {
       password: newUser.password.trim(),
       imageProfile: newUser.imageProfile.trim()
     }
-    console.log("userToRegister:", userToRegister)
 
-
-    // déclencher l'action 
+    // déclencher l'action
 
     dispatch(register(userToRegister, navigate));
-    //page profile 
-  
+    //page profile
+
 
   }
 
   return (
-    <div className="formLogin">
-      <h2 className='m-3'> Register Page</h2>
-      <Form onSubmit={handleSubmit} >
-        <Form.Group className="mb-3" controlId="formBasicName">
+    <div className="auth-page tw-scope">
+      <div className="auth-card">
+        <h2 className="auth-card__title">Register</h2>
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="auth-field" controlId="formBasicName">
+            <Form.Label>Nom</Form.Label>
+            <Form.Control className="form-input" type="text" placeholder="Entrez votre nom" name="name" onChange={handleChange} value={newUser.name} required />
+          </Form.Group>
 
-          <Form.Control type="text" placeholder="Entrez votre nom" name="name" onChange={handleChange} value={newUser.name} required />
-        </Form.Group>
+          <div className="auth-field">
+            <AnimatedInput
+              label="Adresse email"
+              value={newUser.email}
+              onChange={(val) => setNewUser({ ...newUser, email: val })}
+            />
+            <Form.Text>
+              Nous ne partagerons jamais votre email avec qui que ce soit.
+            </Form.Text>
+          </div>
 
-        <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>Adresse email</Form.Label>
-          <Form.Control type="email" placeholder="Entrez votre email" name="email" onChange={handleChange} value={newUser.email} />
-          <Form.Text className="text-muted">
-            Nous ne partagerons jamais votre email avec qui que ce soit.
-          </Form.Text>
-        </Form.Group>
+          <Form.Group className="auth-field" controlId="formBasicPassword">
+            <Form.Label>Mot de passe</Form.Label>
+            <Form.Control className="form-input" type="password" placeholder="Mot de passe" name="password" onChange={handleChange} value={newUser.password} minLength={6} maxLength={32} required />
+            <Form.Text>
+              Entre 6 et 32 caractères.
+            </Form.Text>
+          </Form.Group>
 
-        <Form.Group className="mb-3" controlId="formBasicPassword">
-          <Form.Label>Mot de passe</Form.Label>
-          <Form.Control type="password" placeholder="Mot de passe" name="password" onChange={handleChange} value={newUser.password} />
-        </Form.Group>
+          <Form.Group className="auth-field" controlId="formBasicImage">
+            <Form.Label>Photo de profil (optionnel)</Form.Label>
+            <Form.Control className="form-input" type="url" placeholder="Image Url" name="imageProfile" onChange={handleChange} value={newUser.imageProfile} />
+          </Form.Group>
 
-        <Form.Group className="mb-3" controlId="formBasicImage">
-          <Form.Control type="url" placeholder="Image Url" name="imageProfile" onChange={handleChange} value={newUser.imageProfile} />
+          {errors && errors.length > 0 && (
+            <p className="form-message form-message--error" role="alert">{errors}</p>
+          )}
 
-        </Form.Group>
+          <p className="auth-switch">
+            if you had an account, please login <a href="/login">Login</a>
+          </p>
 
-        <FormGroup>
-          {" "}
-          <FormText className="text-muted">
-            if you had an account, please login {" "} <a href="/login">Login</a>
-          </FormText>
-        </FormGroup>
-        <Button variant="primary" type="submit">
-          submit
-        </Button>
-      </Form>
+          <Button variant="primary" type="submit" className="auth-submit">
+            submit
+          </Button>
+        </Form>
+      </div>
     </div>
   );
 }
 
-export default Register; 
+export default Register;

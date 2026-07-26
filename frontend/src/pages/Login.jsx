@@ -2,29 +2,32 @@
 
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import FormGroup from 'react-bootstrap/esm/FormGroup';
 import Form from 'react-bootstrap/Form';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { login } from "../JS/actions/auth.action";
 import { useNavigate } from 'react-router-dom';
+import "./Auth.css";
+import "../styles/tailwind-scoped.css";
+import AnimatedInput from "@/components/ui/smoothui/animated-input";
 
 function Login() {
   const [userToConnect, setUserToConnect]= useState({
-   email: "", password:""   
+   email: "", password:""
 
   })
-  const dispatch = useDispatch() 
-  const navigate = useNavigate(); 
+  const dispatch = useDispatch()
+  const navigate = useNavigate();
+  const errors = useSelector(state => state.authReducer.errors)
   const handleChange = (e)=>{
      setUserToConnect({...userToConnect, [e.target.name]: e.target.value})
 
   }
   const handleSubmit = (e)=>{
-   e.preventDefault(); 
+   e.preventDefault();
    dispatch(
     login({
      email: userToConnect.email.trim(),
-     password: userToConnect.password.trim(), 
+     password: userToConnect.password.trim(),
 
     }, navigate)
 
@@ -32,31 +35,40 @@ function Login() {
 
   }
   return (
-    <div className="formLogin">
-      <h2 className='m-3'>Login Page</h2>
-      <Form onSubmit={handleSubmit}>       
-        <Form.Group className="mb-3" controlId="formBasicEmail">
+    <div className="auth-page tw-scope">
+      <div className="auth-card">
+        <h2 className="auth-card__title">Login</h2>
+        <Form onSubmit={handleSubmit}>
+          <div className="auth-field">
+            <AnimatedInput
+              label="Adresse email"
+              value={userToConnect.email}
+              onChange={(val) => setUserToConnect({ ...userToConnect, email: val })}
+            />
+          </div>
 
-          <Form.Control type="email" placeholder="Enter email"  name='email' value={userToConnect.email} onChange={handleChange}/>  
+          <Form.Group className="auth-field" controlId="formBasicPassword">
+            <Form.Label>Mot de passe</Form.Label>
+            <Form.Control className="form-input" type="password" placeholder="Password" name='password' value={userToConnect.password} onChange={handleChange} required />
+          </Form.Group>
 
-        </Form.Group>
+          <p className="auth-switch">
+            <a href="/forgot-password">Forgot password?</a>
+          </p>
 
-        <Form.Group className="mb-3" controlId="formBasicPassword">
+          {errors && errors.length > 0 && (
+            <p className="form-message form-message--error" role="alert">{errors}</p>
+          )}
 
-          <Form.Control type="password" placeholder="Password" name='password' value={userToConnect.password} onChange={handleChange} /> 
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicCheckbox">
-          <Form.Check type="checkbox" label="Check me out" />
-        </Form.Group>
-        <FormGroup>
-          <Form.Text className="text-muted">
+          <p className="auth-switch">
             Utilisée uniquement pour la connexion à votre compte <a href="/register">Créer un compte</a>
-          </Form.Text>
-        </FormGroup>
-        <Button variant="primary" type="submit" disabled = {!userToConnect.email || !userToConnect }>
-          Submit
-        </Button>
-      </Form>
+          </p>
+
+          <Button variant="primary" type="submit" className="auth-submit" disabled={!userToConnect.email || !userToConnect.password}>
+            Submit
+          </Button>
+        </Form>
+      </div>
     </div>
   );
 }

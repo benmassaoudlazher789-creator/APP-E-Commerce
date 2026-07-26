@@ -1,0 +1,58 @@
+.home {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+    padding-bottom: var(--space-12);
+}
+
+/* reused by the brand-story section below */
+.hero__eyebrow {
+    color: var(--color-primary);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: var(--space-1);
+}
+
+.hero__subtitle {
+    color: var(--color-text-secondary);
+    margin: var(--space-3) 0 var(--space-3);
+    max-width: 440px;
+    font-size: 18px;
+}
+
+/* Brand story */
+.brand-story {
+    background: var(--color-surface);
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: var(--space-6);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-3);
+    border-radius: 24px;
+    align-items: center;
+}
+
+.brand-story__stats {
+    display: flex;
+    gap: var(--space-4);
+}
+
+.brand-story__stat h3 {
+    color: var(--color-primary);
+    font-size: 32px;
+}
+
+.brand-story__stat p {
+    color: var(--color-text-secondary);
+}
+
+@media (max-width: 900px) {
+    .brand-story {
+        grid-template-columns: 1fr;
+    }
+    .brand-story__stats {
+        flex-wrap: wrap;
+    }
+}

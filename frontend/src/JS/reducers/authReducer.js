@@ -1,5 +1,5 @@
 //importation des types d'action
-import { LOAD_AUTH, SUCCESS_AUTH, FAIL_AUTH, CURRENT_AUTH, LOGOUT_AUTH } from "../actionsType/auth.actionType";
+import { LOAD_AUTH, SUCCESS_AUTH, FAIL_AUTH, CURRENT_AUTH, LOGOUT_AUTH, UPDATE_USER_SUCCESS } from "../actionsType/auth.actionType";
 
 
 
@@ -29,6 +29,9 @@ const authReducer = (state = initialState, { type, payload }) => {
         // dans le cas de la personne qui est connecté
         case CURRENT_AUTH:
             return { ...state, isLoad: false, user: payload.user, isAuth: true }
+        // dans le cas d'une mise a jour du profil ou des adresses
+        case UPDATE_USER_SUCCESS:
+            return { ...state, isLoad: false, user: payload.user, errors: [] }
         // dans le cas de la déconnexion
         case FAIL_AUTH:
             return { ...state, isLoad: false, errors: payload}
