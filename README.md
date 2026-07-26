@@ -1,11 +1,25 @@
-# Red Store
+# Red Store — Plateforme E-Commerce de Sneakers
 
-Application e-commerce MERN, composée de deux projets npm indépendants :
+Projet full-stack MERN (MongoDB, Express, React, Node.js), composé de deux projets npm indépendants :
 
 - `backend/` — API REST Express 5 + MongoDB (Mongoose), authentification JWT, upload d'images via Multer + Cloudinary.
-- `frontend/` — React 19 + Vite, React Router v7, Redux (redux + redux-thunk), React-Bootstrap.
+- `frontend/` — React 19 + Vite, Redux, Tailwind CSS, Framer Motion.
 
 Il n'y a pas de `package.json` à la racine : il faut toujours se placer dans `backend/` ou `frontend/` avant de lancer une commande npm.
+
+## Stack
+
+- Frontend: React 19, Vite, Redux, Tailwind CSS, Framer Motion
+- Backend: Node.js, Express, MongoDB/Mongoose
+- Images: Cloudinary
+
+## Fonctionnalités
+
+- Authentification JWT
+- Panier avec vérification serveur des prix
+- Wishlist
+- Panel admin (upload produits via Cloudinary)
+- Recherche produits
 
 ## Installation
 
