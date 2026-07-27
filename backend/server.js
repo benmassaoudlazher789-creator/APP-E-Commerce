@@ -1,8 +1,18 @@
 
 const express = require("express");
+const cors = require("cors");
 require("dotenv").config();
 //instance d'express
 const app = express();
+//middleware CORS : autorise uniquement le frontend local et Netlify
+const corsOptions = {
+  origin: [
+    "http://localhost:5173",
+    "https://stupendous-medovik-046a30.netlify.app",
+  ],
+  credentials: true,
+};
+app.use(cors(corsOptions));
 //middleware pour parser le corps des requêtes en JSON
 app.use(express.json());
 const path = require("path");
