@@ -6,7 +6,7 @@ import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { logout } from "../JS/actions/auth.action";
 import { selectCartCount } from "../JS/selectors/cart.selectors";
 import { formatPrice } from "../utils/format";
@@ -31,12 +31,14 @@ function BarNav() {
     const cartCount = useSelector(selectCartCount);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
+    
+    // DÉTECTION DE LA PAGE ACTUELLE
+    const isHome = location.pathname === '/';
+
     const [scrolled, setScrolled] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const [query, setQuery] = useState("");
-    // rawSuggestions peut contenir un resultat perime pour une query deja videe : suggestions
-    // (derivee, ci-dessous) le masque plutot que d'appeler setState de façon synchrone dans
-    // l'effet pour le vider (regle react-hooks/set-state-in-effect)
     const [rawSuggestions, setRawSuggestions] = useState([]);
     const suggestions = query.trim() ? rawSuggestions : [];
     const searchBoxRef = useRef(null);
@@ -47,7 +49,6 @@ function BarNav() {
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
-    // suggestions live en tapant, debounce 300ms pour ne pas spammer l'API a chaque frappe
     useEffect(() => {
         const q = query.trim();
         if (!q) return;
@@ -60,7 +61,6 @@ function BarNav() {
         return () => clearTimeout(timer);
     }, [query]);
 
-    // ferme le dropdown de suggestions au clic en dehors de la barre de recherche
     useEffect(() => {
         const onClickOutside = (e) => {
             if (searchBoxRef.current && !searchBoxRef.current.contains(e.target)) {
@@ -91,22 +91,20 @@ function BarNav() {
         <Navbar
             expand="lg"
             fixed="top"
-            className={`red-navbar ${scrolled ? "red-navbar--scrolled" : ""}`}
+            className={`red-navbar ${scrolled ? "red-navbar--scrolled" : ""} ${!isHome ? 'red-navbar--solid' : ''}`}
         >
-            <Container className="red-navbar__container">
+            <Container fluid className="red-navbar__container">
                 <Navbar.Brand as={Link} to="/" className="red-navbar__brand">
                     <span className="red-navbar__mark">R</span>
                     RED<span>STORE</span>
                 </Navbar.Brand>
+                
                 <Navbar.Toggle aria-controls="main-nav" />
-                <Navbar.Collapse id="main-nav">
-                    <Nav className="me-auto red-navbar__links">
+                <Navbar.Collapse id="main-nav" className="justify-content-between">
+                    <Nav className="red-navbar__links">
                         <Nav.Link as={NavLink} to="/" end>
                             Home
                         </Nav.Link>
-                        {/* Plain links, not NavLink: /shop?gender=... filters the catalog,
-                            but there's no distinct route per category, so none of them
-                            should light up as "active" together. */}
                         <Nav.Link as={Link} to="/shop?gender=men">
                             Men
                         </Nav.Link>
@@ -127,143 +125,142 @@ function BarNav() {
                         </Nav.Link>
                     </Nav>
 
-                    <form className="red-navbar__search" onSubmit={handleSearch} ref={searchBoxRef}>
-                        {searchOpen && (
-                            <motion.input
-                                initial={{ width: 0, opacity: 0 }}
-                                animate={{ width: 180, opacity: 1 }}
-                                exit={{ width: 0, opacity: 0 }}
-                                type="search"
-                                autoFocus
-                                placeholder="Search shoes…"
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                onBlur={() => !query && setSearchOpen(false)}
-                                aria-label="Search products"
-                            />
-                        )}
-                        <AnimatePresence>
-                            {suggestions.length > 0 && (
-                                <motion.ul
-                                    initial={{ opacity: 0, y: -6 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -6 }}
-                                    transition={{ duration: 0.15 }}
-                                    className="red-navbar__suggestions"
-                                >
-                                    {suggestions.map((p) => (
-                                        <li key={p._id}>
-                                            <button
-                                                type="button"
-                                                onMouseDown={(e) => {
-                                                    e.preventDefault();
-                                                    goToSuggestion(p._id);
-                                                }}
-                                            >
-                                                <img src={p.imageProd || "/vite.svg"} alt="" />
-                                                <span className="red-navbar__suggestion-info">
-                                                    <span className="red-navbar__suggestion-title">{p.title}</span>
-                                                    <span className="red-navbar__suggestion-price">
-                                                        {formatPrice(p.price)}
+                    <div className="d-flex align-items-center gap-3">
+                        <form className="red-navbar__search" onSubmit={handleSearch} ref={searchBoxRef}>
+                            {searchOpen && (
+                                <motion.input
+                                    initial={{ width: 0, opacity: 0 }}
+                                    animate={{ width: 180, opacity: 1 }}
+                                    exit={{ width: 0, opacity: 0 }}
+                                    type="search"
+                                    autoFocus
+                                    placeholder="Search shoes…"
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    onBlur={() => !query && setSearchOpen(false)}
+                                    aria-label="Search products"
+                                />
+                            )}
+                            <AnimatePresence>
+                                {suggestions.length > 0 && (
+                                    <motion.ul
+                                        initial={{ opacity: 0, y: -6 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -6 }}
+                                        transition={{ duration: 0.15 }}
+                                        className="red-navbar__suggestions"
+                                    >
+                                        {suggestions.map((p) => (
+                                            <li key={p._id}>
+                                                <button
+                                                    type="button"
+                                                    onMouseDown={(e) => {
+                                                        e.preventDefault();
+                                                        goToSuggestion(p._id);
+                                                    }}
+                                                >
+                                                    <img src={p.imageProd || "/vite.svg"} alt="" />
+                                                    <span className="red-navbar__suggestion-info">
+                                                        <span className="red-navbar__suggestion-title">{p.title}</span>
+                                                        <span className="red-navbar__suggestion-price">
+                                                            {formatPrice(p.price)}
+                                                        </span>
                                                     </span>
-                                                </span>
-                                            </button>
-                                        </li>
-                                    ))}
-                                </motion.ul>
-                            )}
-                        </AnimatePresence>
-                        <button
-                            type={searchOpen ? "submit" : "button"}
-                            className="red-navbar__icon-btn"
-                            aria-label="Search"
-                            onClick={() => !searchOpen && setSearchOpen(true)}
-                        >
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                                <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.8" />
-                                <line
-                                    x1="16.4"
-                                    y1="16.4"
-                                    x2="21"
-                                    y2="21"
-                                    stroke="currentColor"
-                                    strokeWidth="1.8"
-                                    strokeLinecap="round"
-                                />
-                            </svg>
-                        </button>
-                    </form>
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </motion.ul>
+                                )}
+                            </AnimatePresence>
+                            <button
+                                type={searchOpen ? "submit" : "button"}
+                                className="red-navbar__icon-btn"
+                                aria-label="Search"
+                                onClick={() => !searchOpen && setSearchOpen(true)}
+                            >
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.8" />
+                                    <line
+                                        x1="16.4"
+                                        y1="16.4"
+                                        x2="21"
+                                        y2="21"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                    />
+                                </svg>
+                            </button>
+                        </form>
 
-                    <NavDropdown
-                        title={ACCOUNT_ICON}
-                        id="account-nav-dropdown"
-                        align="end"
-                        className="red-navbar__account"
-                    >
-                        {user ? (
-                            <>
-                                <NavDropdown.ItemText className="red-navbar__account-hi">
-                                    Hi, {user.name}
-                                </NavDropdown.ItemText>
-                                <NavDropdown.Item as={Link} to="/profile">
-                                    Profile
-                                </NavDropdown.Item>
-                                <NavDropdown.Item as={Link} to="/wishlist">
-                                    Wishlist
-                                </NavDropdown.Item>
-                                {/* Visible to any logged-in user for now, not gated on
-                                    isAdmin — the backend doesn't expose that flag to the
-                                    frontend yet, so there's nothing to check client-side. */}
-                                <NavDropdown.Item as={Link} to="/admin/products">
-                                    Add Product
-                                </NavDropdown.Item>
-                                <NavDropdown.Item
-                                    as="button"
-                                    onClick={() => dispatch(logout(navigate))}
-                                >
-                                    Logout
-                                </NavDropdown.Item>
-                            </>
-                        ) : (
-                            <>
-                                <NavDropdown.Item as={Link} to="/login">
-                                    Login
-                                </NavDropdown.Item>
-                                <NavDropdown.Item as={Link} to="/register">
-                                    Register
-                                </NavDropdown.Item>
-                            </>
-                        )}
-                    </NavDropdown>
-
-                    <Link to="/cart" className="red-navbar__cart" aria-label="Cart">
-                        <motion.span
-                            whileHover={{ scale: 1.08 }}
-                            whileTap={{ scale: 0.95 }}
-                            transition={{ duration: 0.2 }}
-                            className="red-navbar__cart-icon"
+                        <NavDropdown
+                            title={ACCOUNT_ICON}
+                            id="account-nav-dropdown"
+                            align="end"
+                            className="red-navbar__account"
                         >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <path
-                                    d="M3 3h2l.4 2M7 13h10l3-8H5.4M7 13L5.4 5M7 13l-2.3 4.6A1 1 0 0 0 5.6 19H17M17 19a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM9 21a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"
-                                    stroke="currentColor"
-                                    strokeWidth="1.8"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
-                            {cartCount > 0 && (
-                                <motion.span
-                                    key={cartCount}
-                                    initial={{ scale: 0.6 }}
-                                    animate={{ scale: 1 }}
-                                    className="red-navbar__cart-badge"
-                                >
-                                    {cartCount}
-                                </motion.span>
+                            {user ? (
+                                <>
+                                    <NavDropdown.ItemText className="red-navbar__account-hi">
+                                        Hi, {user.name}
+                                    </NavDropdown.ItemText>
+                                    <NavDropdown.Item as={Link} to="/profile">
+                                        Profile
+                                    </NavDropdown.Item>
+                                    <NavDropdown.Item as={Link} to="/wishlist">
+                                        Wishlist
+                                    </NavDropdown.Item>
+                                    <NavDropdown.Item as={Link} to="/admin/products">
+                                        Add Product
+                                    </NavDropdown.Item>
+                                    <NavDropdown.Item
+                                        as="button"
+                                        onClick={() => dispatch(logout(navigate))}
+                                    >
+                                        Logout
+                                    </NavDropdown.Item>
+                                </>
+                            ) : (
+                                <>
+                                    <NavDropdown.Item as={Link} to="/login">
+                                        Login
+                                    </NavDropdown.Item>
+                                    <NavDropdown.Item as={Link} to="/register">
+                                        Register
+                                    </NavDropdown.Item>
+                                </>
                             )}
-                        </motion.span>
-                    </Link>
+                        </NavDropdown>
+
+                        <Link to="/cart" className="red-navbar__cart" aria-label="Cart">
+                            <motion.span
+                                whileHover={{ scale: 1.08 }}
+                                whileTap={{ scale: 0.95 }}
+                                transition={{ duration: 0.2 }}
+                                className="red-navbar__cart-icon"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path
+                                        d="M3 3h2l.4 2M7 13h10l3-8H5.4M7 13L5.4 5M7 13l-2.3 4.6A1 1 0 0 0 5.6 19H17M17 19a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM9 21a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                                {cartCount > 0 && (
+                                    <motion.span
+                                        key={cartCount}
+                                        initial={{ scale: 0.6 }}
+                                        animate={{ scale: 1 }}
+                                        className="red-navbar__cart-badge"
+                                    >
+                                        {cartCount}
+                                    </motion.span>
+                                )}
+                            </motion.span>
+                        </Link>
+                    </div>
                 </Navbar.Collapse>
             </Container>
         </Navbar>

@@ -1,4 +1,3 @@
-
 import { Route, Routes, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import './App.css'
@@ -27,31 +26,149 @@ function App() {
   const dispatch = useDispatch()
   const location = useLocation()
 
-  useEffect(()=>
-  // pour identifier le user authentifier dés le montage du App
-  { dispatch(current()); }, [dispatch]);
+  useEffect(() => { dispatch(current()); }, [dispatch]);
 
   return (
     <div className="App">
-      <BarNav />
+
+      {/* 
+         ⭐️ MODIFICATION ICI : 
+         On enlève <BarNav /> d'ici pour qu'elle soit gérée 
+         page par page dans les <Routes>.
+      */}
+
       <main>
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
 
-            <Route path="/" element={<PageTransition><Home /></PageTransition>} />
-            <Route path="/shop" element={<PageTransition><Shop /></PageTransition>} />
-            <Route path="/shop/:id" element={<PageTransition><ProductDetail /></PageTransition>} />
-            <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
-            <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
-            <Route path="/order-confirmation/:orderNumber" element={<PageTransition><OrderConfirmation /></PageTransition>} />
-            <Route path="/register" element={<PageTransition><Register /></PageTransition>} />
-            <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
-            <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
-            <Route path="/reset-password/:token" element={<PageTransition><ResetPassword /></PageTransition>} />
-            <Route path="/wishlist" element={<PageTransition><Wishlist /></PageTransition>} />
-            <Route path="/profile" element={<PageTransition><Profile /></PageTransition>} />
-            <Route path="/admin/products" element={<PageTransition><AdminProducts /></PageTransition>} />
-            <Route path="/*" element={<PageTransition><Error /></PageTransition>} />
+            {/* ⭐️ PAGE D'ACCUEIL : On inclut la BarNav à l'intérieur du Home */}
+            <Route path="/" element={
+              <PageTransition>
+                <div className="home-layout">
+                  <BarNav />
+                  <Home />
+                </div>
+              </PageTransition>
+            } />
+
+            {/* ⭐️ AUTRES PAGES : On met la BarNav avant, comme avant */}
+            <Route path="/shop" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <Shop />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/shop/:id" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <ProductDetail />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/cart" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <Cart />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/checkout" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <Checkout />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/order-confirmation/:orderNumber" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <OrderConfirmation />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/register" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <Register />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/login" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <Login />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/forgot-password" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <ForgotPassword />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/reset-password/:token" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <ResetPassword />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/wishlist" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <Wishlist />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/profile" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <Profile />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/admin/products" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <AdminProducts />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/*" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <Error />
+                </>
+              </PageTransition>
+            } />
+
           </Routes>
         </AnimatePresence>
       </main>

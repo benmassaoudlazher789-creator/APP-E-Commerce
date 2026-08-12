@@ -1,201 +1,125 @@
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useSearchParams } from "react-router-dom";
-import { getAllProducts, searchProducts } from "../JS/actions/Prod.action";
-import ProductGrid from "../components/ProductGrid";
-import Reveal from "../components/Reveal";
-import { formatPrice } from "../utils/format";
-import { cn } from "../lib/utils";
-import "../styles/tailwind-scoped.css";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useSearchParams, Link } from "react-router-dom";
+import "./Shop.css"; // On réutilise votre CSS existant
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:1980';
+
+const MOCK_PRODUCTS = [
+    { _id: "1", title: "Red Store Pro Runner", brand: "Red Store", price: 149.99, imageProd: "https://images.unsplash.com/photo-1593443361409-0c9267d39d6a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzA3fHxzbmVha2VyJTIwZGUlMjByZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [40, 41, 42, 43, 44] },
+    { _id: "2", title: "Urban Red Sneakers", brand: "Red Store", price: 135.50, imageProd: "https://images.unsplash.com/photo-1675625500632-2d276bd51920?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjY0fHxzbmVha2VyJTIwZGUlMjByZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [41, 42, 43, 45] },
+    { _id: "3", title: "Classic Red Runner", brand: "Red Store", price: 119.99, imageProd: "https://images.unsplash.com/photo-1656085180791-0e634c8bd1e6?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTgzfHxzbmVha2VyJTIwZGUlMjByZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [40, 42, 44, 46] },
+    { _id: "4", title: "Street Red Edition", brand: "Red Store", price: 159.00, imageProd: "https://images.unsplash.com/photo-1620114315899-abb0930264fd?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTYwfHxzbmVha2VyJTIwZGUlMjByZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [41, 42, 43, 44] },
+    { _id: "5", title: "Velocity Red", brand: "Red Store", price: 139.90, imageProd: "https://images.unsplash.com/photo-1706611760588-41ebba31012b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTQ0fHxzbmVha2VyJTIwZGUlMjByZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [40, 41, 43, 45] },
+    { _id: "6", title: "Red Store Speedstar", brand: "Red Store", price: 129.00, imageProd: "https://images.unsplash.com/photo-1656944227480-98180d2a5155?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fHNuZWFrZXIlMjBkZSUyMHJlZCUyMHN0b3JlfGVufDB8fDB8fHww", sizes: [42, 43, 44, 46] }
+];
 
 const Shop = () => {
-    const dispatch = useDispatch();
-    const { products, isLoad } = useSelector((state) => state.productReducer);
     const [searchParams] = useSearchParams();
-    const query = (searchParams.get("q") || "").trim().toLowerCase();
-    const gender = searchParams.get("gender") || "";
-
-    const [selectedSizes, setSelectedSizes] = useState([]);
+    const genderParam = searchParams.get("gender") || "men"; 
+    const [products, setProducts] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [selectedBrands, setSelectedBrands] = useState([]);
-    const [maxPrice, setMaxPrice] = useState(null);
+    const [selectedSizes, setSelectedSizes] = useState([]);
+    const [maxPrice, setMaxPrice] = useState(200);
 
     useEffect(() => {
-        if (query) dispatch(searchProducts(query));
-        else dispatch(getAllProducts({ gender }));
-    }, [dispatch, gender, query]);
+        const fetchProducts = async () => {
+            setLoading(true);
+            try {
+                const res = await axios.get(`${API_URL}/api/product/search`, { params: { gender: genderParam } });
+                const data = res.data.Prod || res.data || [];
+                setProducts(data.length > 0 ? data : MOCK_PRODUCTS);
+                setFilteredProducts(data.length > 0 ? data : MOCK_PRODUCTS);
+            } catch (err) {
+                setProducts(MOCK_PRODUCTS);
+                setFilteredProducts(MOCK_PRODUCTS);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProducts();
+    }, [genderParam]);
 
-    const brands = useMemo(
-        () => [...new Set(products.map((p) => p.brand).filter(Boolean))].sort(),
-        [products]
-    );
-    const sizes = useMemo(
-        () =>
-            [...new Set(products.flatMap((p) => (p.sizes || []).map((s) => s.size)))].sort(
-                (a, b) => a - b
-            ),
-        [products]
-    );
-    const priceCeiling = useMemo(
-        () => Math.max(0, ...products.map((p) => p.price || 0)),
-        [products]
-    );
-
-    // Derive plutot que synchroniser : si la categorie/recherche change et que le nouveau
-    // catalogue a un prix max plus bas que maxPrice (etat brut, jamais reecrit ici), le clamp est
-    // recalcule au meme rendu via priceCeiling (deja recalcule par le useMemo ci-dessus) - sans
-    // ce clamp, l'attribut max du <input> passerait sous value, et le navigateur clamperait alors
-    // silencieusement la position visuelle du curseur sans que React ne le sache, desynchronisant
-    // le curseur du texte affiche et faussant le filtre.
-    const clampedMaxPrice = maxPrice !== null ? Math.min(maxPrice, priceCeiling) : null;
-
-    // Le curseur natif (peint par le navigateur, hors du cycle de rendu React) reste toujours
-    // instantane et correct - c'est clampedMaxPrice qui l'alimente, jamais retarde. Mais re-rendre
-    // toute la grille (cartes Framer Motion) sur CHAQUE evenement d'un vrai glisser-deposer rapide
-    // est trop couteux et prend du retard sur le curseur : on ne voit alors que l'ancien
-    // filtrage pendant une fraction de seconde, avant que la grille ne rattrape son retard. Seul
-    // le filtre effectif (filterMaxPrice) est donc debounce, jamais l'affichage du curseur/texte.
-    const [filterMaxPrice, setFilterMaxPrice] = useState(clampedMaxPrice);
     useEffect(() => {
-        const timer = setTimeout(() => setFilterMaxPrice(clampedMaxPrice), 120);
-        return () => clearTimeout(timer);
-    }, [clampedMaxPrice]);
+        let result = products;
+        if (selectedBrands.length > 0) {
+            result = result.filter(p => selectedBrands.some(brand => p.brand?.toLowerCase().includes(brand.toLowerCase())));
+        }
+        if (selectedSizes.length > 0) {
+            result = result.filter(p => p.sizes && p.sizes.some(size => selectedSizes.includes(size)));
+        }
+        result = result.filter(p => p.price <= maxPrice);
+        setFilteredProducts(result);
+    }, [selectedBrands, selectedSizes, maxPrice, products]);
 
-    const toggle = (list, setList, value) =>
-        setList(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
-
-    // Memoise sur filterMaxPrice (deja debounce), pas sur maxPrice/clampedMaxPrice qui changent a
-    // chaque tick du drag : sans ce useMemo, .filter() renvoie un NOUVEAU tableau a chaque render
-    // (meme quand son contenu ne change pas), donc ProductGrid (non memoise) refait toute sa
-    // reconciliation Framer Motion sur chaque evenement du drag et bloque le thread principal -
-    // c'est ce qui fait paraitre le curseur natif saccade pendant le glissement.
-    const filtered = useMemo(
-        () =>
-            products.filter((p) => {
-                if (selectedBrands.length && !selectedBrands.includes(p.brand)) return false;
-                if (selectedSizes.length && !(p.sizes || []).some((s) => selectedSizes.includes(s.size)))
-                    return false;
-                if (filterMaxPrice !== null && p.price > filterMaxPrice) return false;
-                return true;
-            }),
-        [products, selectedBrands, selectedSizes, filterMaxPrice]
-    );
-
-    const clearFilters = () => {
-        setSelectedSizes([]);
-        setSelectedBrands([]);
-        setMaxPrice(null);
-        setFilterMaxPrice(null);
-    };
-
-    const genderLabel = { men: "Men's Shoes", women: "Women's Shoes", kids: "Kids' Shoes" }[gender];
-    const pageTitle = query
-        ? `Results for "${searchParams.get("q")}"`
-        : genderLabel || "Shop All Shoes";
-    const hasCatalog = products.length > 0;
+    const toggleBrand = (brand) => setSelectedBrands(prev => prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]);
+    const toggleSize = (size) => setSelectedSizes(prev => prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]);
+    const clearFilters = () => { setSelectedBrands([]); setSelectedSizes([]); setMaxPrice(200); };
 
     return (
-        <div className="tw-scope">
-            <div className="mx-auto max-w-6xl px-4 py-8 lg:px-8 lg:py-10">
-                <Reveal>
-                    <div className="mb-6 flex items-baseline justify-between">
-                        <h1 className="text-3xl font-bold tracking-tight text-neutral-900">{pageTitle}</h1>
-                        {!isLoad && hasCatalog && (
-                            <p className="text-sm text-neutral-500">
-                                {filtered.length} product{filtered.length !== 1 ? "s" : ""}
-                            </p>
-                        )}
+        <div className="shop-page">
+            <div className="shop-header">
+                <h1 className="shop-title">Men's Shoes</h1>
+                <span className="shop-count">{filteredProducts.length} products</span>
+            </div>
+
+            <div className="shop-layout">
+                <aside className="shop-filters">
+                    <div className="filter-group">
+                        <h3>Brand</h3>
+                        {[...new Set(products.map(p => p.brand).filter(Boolean))].map(brand => (
+                            <label key={brand} className="filter-checkbox">
+                                <input type="checkbox" checked={selectedBrands.includes(brand)} onChange={() => toggleBrand(brand)} />
+                                {brand}
+                            </label>
+                        ))}
                     </div>
-                </Reveal>
 
-                {isLoad ? (
-                    <p className="py-24 text-center text-sm text-neutral-500">Loading products…</p>
-                ) : !hasCatalog ? (
-                    <div className="py-24 text-center">
-                        <p className="text-sm text-neutral-500">
-                            {genderLabel
-                                ? `No ${genderLabel.toLowerCase()} available yet — check back soon.`
-                                : "No products in the store yet — check back soon."}
-                        </p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-[240px_1fr] items-start gap-8 max-lg:grid-cols-1">
-                        <aside className="sticky top-24 flex flex-col gap-6 rounded-xl border border-neutral-200 bg-neutral-50 p-5 max-lg:static">
-                            {brands.length > 0 && (
-                                <div>
-                                    <h4 className="mb-2 text-sm font-semibold text-neutral-900">Brand</h4>
-                                    <div className="flex flex-col gap-1">
-                                        {brands.map((brand) => (
-                                            <label
-                                                key={brand}
-                                                className="flex cursor-pointer items-center gap-2 py-1 text-sm text-neutral-700"
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    className="h-4 w-4 cursor-pointer accent-[#e63946]"
-                                                    checked={selectedBrands.includes(brand)}
-                                                    onChange={() => toggle(selectedBrands, setSelectedBrands, brand)}
-                                                />
-                                                {brand}
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {sizes.length > 0 && (
-                                <div>
-                                    <h4 className="mb-2 text-sm font-semibold text-neutral-900">Size</h4>
-                                    <div className="grid grid-cols-4 gap-1.5">
-                                        {sizes.map((size) => (
-                                            <button
-                                                key={size}
-                                                type="button"
-                                                onClick={() => toggle(selectedSizes, setSelectedSizes, size)}
-                                                className={cn(
-                                                    "rounded-lg border py-1.5 text-sm font-medium transition-colors",
-                                                    selectedSizes.includes(size)
-                                                        ? "border-[#e63946] bg-[#e63946] text-white"
-                                                        : "border-neutral-300 bg-white text-neutral-700 hover:border-[#e63946] hover:text-[#e63946]"
-                                                )}
-                                            >
-                                                {size}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {priceCeiling > 0 && (
-                                <div>
-                                    <h4 className="mb-2 text-sm font-semibold text-neutral-900">Max Price</h4>
-                                    <input
-                                        type="range"
-                                        min="0"
-                                        max={priceCeiling}
-                                        value={clampedMaxPrice ?? priceCeiling}
-                                        onChange={(e) => setMaxPrice(Number(e.target.value))}
-                                        className="h-1.5 w-full cursor-pointer accent-[#e63946]"
-                                    />
-                                    <p className="mt-1 text-sm text-neutral-600">
-                                        Up to {formatPrice(clampedMaxPrice ?? priceCeiling)}
-                                    </p>
-                                </div>
-                            )}
-
-                            <button
-                                type="button"
-                                onClick={clearFilters}
-                                className="rounded-lg border border-neutral-300 py-2 text-sm font-semibold text-neutral-600 transition-colors hover:border-[#e63946] hover:text-[#e63946]"
-                            >
-                                Clear Filters
-                            </button>
-                        </aside>
-
-                        <div>
-                            <ProductGrid products={filtered} emptyMessage="No shoes match these filters." />
+                    <div className="filter-group">
+                        <h3>Size</h3>
+                        <div className="size-grid">
+                            {[40, 41, 42, 43, 44, 45, 46].map(size => (
+                                <button key={size} className={`size-btn ${selectedSizes.includes(size) ? 'active' : ''}`} onClick={() => toggleSize(size)}>{size}</button>
+                            ))}
                         </div>
                     </div>
-                )}
+
+                    <div className="filter-group">
+                        <h3>Max Price</h3>
+                        <input type="range" min="0" max="200" value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} className="price-slider" />
+                        <div className="price-label">Up to ${maxPrice.toFixed(2)}</div>
+                    </div>
+
+                    <button className="clear-filters-btn" onClick={clearFilters}>Clear Filters</button>
+                </aside>
+
+                <main className="shop-grid">
+                    {loading ? (
+                        <p className="loading-text">Loading products...</p>
+                    ) : filteredProducts.length === 0 ? (
+                        <p className="no-products">No products match your criteria.</p>
+                    ) : (
+                        filteredProducts.map((product) => (
+                            <Link to={`/shop/${product._id}`} key={product._id} className="product-card">
+                                <div className="product-image-wrapper">
+                                    <img src={product.imageProd || "/vite.svg"} alt={product.title} className="product-image" />
+                                </div>
+                                <div className="product-info">
+                                    <span className="product-brand">{product.brand || "Red Store"}</span>
+                                    <h3 className="product-title">{product.title}</h3>
+                                    <div className="product-footer">
+                                        <span className="product-price">${product.price.toFixed(2)}</span>
+                                        <button className="add-cart-btn">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))
+                    )}
+                </main>
             </div>
         </div>
     );
