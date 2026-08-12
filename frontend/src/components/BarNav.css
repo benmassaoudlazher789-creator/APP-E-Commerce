@@ -1,42 +1,79 @@
-/* --- CLASSE DE BASE (Lorsque la page est tout en haut) --- */
+/* --- BASE --- */
 .red-navbar {
-    background: transparent !important; /* Fond transparent pour se fondre dans le rose */
-    position: absolute !important; /* Elle flotte au-dessus de l'écran */
+    background: transparent !important;
+    position: absolute !important;
     top: 0 !important;
     left: 0 !important;
     width: 100% !important;
     z-index: 1000 !important;
-    padding: var(--space-2) 40px !important; /* Ajustement du padding horizontal */
+    padding: var(--space-2) 0 !important;
     box-sizing: border-box !important;
     border-bottom: 1px solid transparent;
-    transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease !important; /* Animation fluide */
+    transition:
+        background 0.3s ease,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease !important;
 }
 
-/* --- CLASSE QUAND ON SCROLLE (Après avoir descendu un peu) --- */
 .red-navbar--scrolled {
-    background: #ffffff !important; /* Elle devient blanche */
-    position: fixed !important; /* Elle se fixe en haut de l'écran */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Belle ombre pro */
-    border-bottom: 1px solid #eee; /* Ligne de séparation subtile */
+    background: #ffffff !important;
+    position: fixed !important;
+    box-shadow: 0 4px 20px rgba(230, 57, 70, 0.06);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* --- CLASSE POUR LES AUTRES PAGES (Shop, Cart, etc.) --- */
 .red-navbar--solid {
-    background: #ffffff !important; /* Fond blanc solide */
-    position: relative !important; /* Elle prend sa place normale dans la page */
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    border-bottom: 1px solid #eee;
-    padding: var(--space-2) 40px !important;
-    box-sizing: border-box !important;
+    background: #ffffff !important;
+    position: relative !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* --- CONTENEUR --- */
+/* --- GRILLE 3 COLONNES : logo | liens | icônes --- */
 .red-navbar__container {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    gap: var(--space-3);
+    max-width: 1440px;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+    gap: var(--space-2);
+    min-height: 52px;
+}
+
+@media (min-width: 992px) {
+    .red-navbar.navbar-expand-lg .red-navbar__collapse {
+        display: contents !important;
+    }
+
+    .red-navbar__container {
+        display: grid;
+        grid-template-columns: minmax(140px, 1fr) auto minmax(140px, 1fr);
+        align-items: center;
+        column-gap: var(--space-3);
+        flex-wrap: nowrap;
+    }
+
+    .red-navbar__brand {
+        grid-column: 1;
+        justify-self: start;
+    }
+
+    .red-navbar__toggle {
+        display: none;
+    }
+
+    .red-navbar__links {
+        grid-column: 2;
+        justify-self: center;
+    }
+
+    .red-navbar__actions {
+        grid-column: 3;
+        justify-self: end;
+    }
 }
 
 /* --- LOGO --- */
@@ -45,10 +82,18 @@
     align-items: center;
     gap: 10px;
     font-weight: 800;
-    font-size: 22px;
-    letter-spacing: -0.01em;
+    font-size: clamp(1.125rem, 1rem + 0.4vw, 1.375rem);
+    letter-spacing: -0.02em;
     color: var(--color-text) !important;
     text-decoration: none;
+    margin-right: 0;
+    padding: 0;
+    flex-shrink: 0;
+    transition: opacity var(--transition);
+}
+
+.red-navbar__brand:hover {
+    opacity: 0.85;
 }
 
 .red-navbar__brand span {
@@ -59,46 +104,62 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
     background: var(--color-primary);
     color: #fff !important;
     font-family: var(--font-display);
     font-size: 18px;
     line-height: 1;
+    box-shadow: 0 2px 8px rgba(230, 57, 70, 0.25);
+}
+
+/* --- TOGGLE MOBILE --- */
+.red-navbar__toggle {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius);
+    padding: 6px 10px;
+}
+
+.red-navbar__toggle:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    box-shadow: none;
 }
 
 /* --- LIENS --- */
 .red-navbar__links {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: clamp(4px, 0.5vw, 12px);
 }
 
 .red-navbar__links .nav-link {
     color: var(--color-text) !important;
     font-weight: 500;
-    font-size: 15px;
-    padding: var(--space-1) var(--space-2) !important;
+    font-size: 14px;
+    letter-spacing: 0.01em;
+    padding: var(--space-1) clamp(8px, 1vw, 14px) !important;
     background: none;
     border: none;
     position: relative;
     text-decoration: none;
+    white-space: nowrap;
     transition: color var(--transition);
 }
 
 .red-navbar__links .nav-link::after {
     content: "";
     position: absolute;
-    left: var(--space-2);
-    right: var(--space-2);
+    left: clamp(8px, 1vw, 14px);
+    right: clamp(8px, 1vw, 14px);
     bottom: 2px;
     height: 2px;
     border-radius: 999px;
     background: var(--color-primary);
     transform: scaleX(0);
-    transform-origin: left;
+    transform-origin: center;
     transition: transform var(--transition);
 }
 
@@ -116,6 +177,20 @@
 
 .red-navbar__links .nav-link:hover::after {
     transform: scaleX(1);
+}
+
+.red-navbar__links .nav-link:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+/* --- ZONE ACTIONS (recherche, compte, panier) --- */
+.red-navbar__actions {
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 1vw, 12px);
+    flex-shrink: 0;
 }
 
 /* --- RECHERCHE --- */
@@ -154,7 +229,7 @@
     z-index: 20;
 }
 
-.red-navbar__suggestions li+li {
+.red-navbar__suggestions li + li {
     margin-top: 2px;
 }
 
@@ -206,28 +281,49 @@
     font-weight: 700;
 }
 
-/* --- ICÔNES & DROPDOWN --- */
+/* --- ICÔNES --- */
 .red-navbar__icon-btn {
     background: none;
     border: none;
     color: var(--color-text);
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     cursor: pointer;
-    padding: var(--space-1);
-    transition: color var(--transition);
+    padding: 0;
+    transition:
+        color var(--transition),
+        background var(--transition);
 }
 
 .red-navbar__icon-btn:hover {
     color: var(--color-primary);
+    background: rgba(230, 57, 70, 0.06);
+}
+
+.red-navbar__icon-btn:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
 
 .red-navbar__account .dropdown-toggle {
     background: none !important;
     border: none !important;
     color: var(--color-text) !important;
-    padding: var(--space-1) !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0 !important;
+    border-radius: 50%;
     box-shadow: none !important;
+    transition:
+        color var(--transition),
+        background var(--transition);
 }
 
 .red-navbar__account .dropdown-toggle::after {
@@ -236,6 +332,12 @@
 
 .red-navbar__account .dropdown-toggle:hover {
     color: var(--color-primary) !important;
+    background: rgba(230, 57, 70, 0.06) !important;
+}
+
+.red-navbar__account .dropdown-toggle:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
 
 .red-navbar__account-hi {
@@ -248,8 +350,24 @@
     color: var(--color-text);
     display: inline-flex;
     align-items: center;
-    margin-left: var(--space-2);
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     text-decoration: none;
+    transition:
+        color var(--transition),
+        background var(--transition);
+}
+
+.red-navbar__cart:hover {
+    color: var(--color-primary);
+    background: rgba(230, 57, 70, 0.06);
+}
+
+.red-navbar__cart:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
 
 .red-navbar__cart-icon {
@@ -259,15 +377,56 @@
 
 .red-navbar__cart-badge {
     position: absolute;
-    top: -8px;
-    right: -10px;
+    top: -6px;
+    right: -8px;
     background: var(--color-primary);
     color: #fff;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     line-height: 1;
-    padding: 3px 6px;
+    padding: 3px 5px;
     border-radius: 999px;
-    min-width: 18px;
+    min-width: 17px;
     text-align: center;
+    box-shadow: 0 2px 6px rgba(230, 57, 70, 0.35);
+}
+
+/* --- MOBILE --- */
+@media (max-width: 991.98px) {
+    .red-navbar__collapse {
+        flex-basis: 100%;
+        flex-grow: 1;
+    }
+
+    .red-navbar__links {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        gap: 0;
+        padding-block: var(--space-2);
+    }
+
+    .red-navbar__links .nav-link {
+        width: 100%;
+        padding: var(--space-2) 0 !important;
+        font-size: 15px;
+    }
+
+    .red-navbar__links .nav-link::after {
+        left: 0;
+        right: auto;
+        width: 24px;
+    }
+
+    .red-navbar__actions {
+        width: 100%;
+        padding-block: var(--space-2);
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+    }
+}
+
+.navbar-glass {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }

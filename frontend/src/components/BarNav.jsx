@@ -99,8 +99,8 @@ function BarNav() {
                     RED<span>STORE</span>
                 </Navbar.Brand>
                 
-                <Navbar.Toggle aria-controls="main-nav" />
-                <Navbar.Collapse id="main-nav" className="justify-content-between">
+                <Navbar.Toggle aria-controls="main-nav" className="red-navbar__toggle" />
+                <Navbar.Collapse id="main-nav" className="red-navbar__collapse">
                     <Nav className="red-navbar__links">
                         <Nav.Link as={NavLink} to="/" end>
                             Home
@@ -125,7 +125,7 @@ function BarNav() {
                         </Nav.Link>
                     </Nav>
 
-                    <div className="d-flex align-items-center gap-3">
+                    <div className="red-navbar__actions">
                         <form className="red-navbar__search" onSubmit={handleSearch} ref={searchBoxRef}>
                             {searchOpen && (
                                 <motion.input
