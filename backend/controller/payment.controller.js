@@ -1,15 +1,9 @@
 const crypto = require("crypto");
 const PaymentIntent = require("../model/PaymentIntent");
 
-// Aucune cle Stripe n'est configuree (STRIPE_SECRET_KEY absente de .env) : ce controller simule
-// une passerelle de paiement cote serveur (au lieu du client, pour que le resultat ne puisse pas
-// etre falsifie par le navigateur). Il garde la meme carte de test "toujours refusee" que
-// l'ancien mock cote frontend, pour pouvoir tester le flux d'echec.
-// Un PaymentIntent est enregistre a l'approbation : createOrder le verifie plus tard pour
-// s'assurer qu'une commande "paid" correspond bien a un paiement reellement traite ici,
-// et qu'il n'est pas rejoue pour plusieurs commandes.
 const DECLINED_TEST_CARD = "4000000000000002";
 
+// createPaymentIntent est géré dans routes/payment.routes.js
 exports.processPayment = async (req, res) => {
     try {
         const { method, amount, cardNumber, expiry, cvv } = req.body;

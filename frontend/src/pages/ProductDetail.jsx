@@ -1,25 +1,26 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 import { useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { getAllProducts, getProductById } from "../JS/actions/Prod.action";
-import { addToCart } from "../JS/actions/cart.action";
+import { SET_CART } from "../JS/actionsType/cart.actionType";
+import { API_URL, getAuthHeaders } from "../utils/api";
 import ProductGrid from "../components/ProductGrid";
 import Reveal from "../components/Reveal";
 import { formatPrice } from "../utils/format";
 import "./ProductDetail.css";
 
-// composant remonte via `key={id}` (voir l'export par defaut plus bas) : chaque
-// navigation vers un nouveau produit repart donc d'un etat local frais, sans
-// avoir besoin de reinitialiser activeImage/selectedSize/quantity dans un effet.
 const ProductDetailView = ({ id }) => {
     const dispatch = useDispatch();
     const { product, products } = useSelector((state) => state.productReducer);
+    const isAuth = useSelector((state) => state.authReducer.isAuth);
 
     const [activeImage, setActiveImage] = useState(0);
     const [selectedSize, setSelectedSize] = useState(null);
-    const [quantity, setQuantity] = useState(1);
     const [added, setAdded] = useState(false);
+    const [adding, setAdding] = useState(false);
 
     useEffect(() => {
         dispatch(getProductById(id));
@@ -36,11 +37,35 @@ const ProductDetailView = ({ id }) => {
     const sizeInfo = product.sizes || [];
     const currentStock = sizeInfo.find((s) => s.size === selectedSize)?.stock ?? 0;
 
-    const handleAddToCart = () => {
+    const handleAddToCart = async () => {
         if (!selectedSize || currentStock === 0) return;
-        dispatch(addToCart(product, selectedSize, quantity));
-        setAdded(true);
-        setTimeout(() => setAdded(false), 2000);
+
+        const token = localStorage.getItem("token");
+        if (!isAuth || !token) {
+            toast.error("Connectez-vous pour ajouter au panier.");
+            return;
+        }
+
+        setAdding(true);
+        try {
+            await axios.post(
+                `${API_URL}/api/cart/add`,
+                { productId: product._id, quantity: 1, size: selectedSize },
+                { headers: getAuthHeaders() }
+            );
+
+            const { data } = await axios.get(`${API_URL}/api/cart`, { headers: getAuthHeaders() });
+            dispatch({ type: SET_CART, payload: data.items || [] });
+
+            toast.success("Produit ajouté au panier !");
+            setAdded(true);
+            setTimeout(() => setAdded(false), 2000);
+        } catch (err) {
+            toast.error("Erreur lors de l'ajout au panier");
+            console.error(err.response?.data?.msg || err.message);
+        } finally {
+            setAdding(false);
+        }
     };
 
     const related = products
@@ -101,10 +126,7 @@ const ProductDetailView = ({ id }) => {
                                     className={`shop__size-pill ${
                                         selectedSize === s.size ? "shop__size-pill--active" : ""
                                     }`}
-                                    onClick={() => {
-                                        setSelectedSize(s.size);
-                                        setQuantity(1);
-                                    }}
+                                    onClick={() => setSelectedSize(s.size)}
                                 >
                                     {s.size}
                                 </button>
@@ -117,36 +139,15 @@ const ProductDetailView = ({ id }) => {
                         )}
                     </div>
 
-                    <div className="product-detail__qty">
-                        <h4>Quantity</h4>
-                        <div className="product-detail__stepper">
-                            <button
-                                type="button"
-                                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                                disabled={!selectedSize}
-                            >
-                                −
-                            </button>
-                            <span>{quantity}</span>
-                            <button
-                                type="button"
-                                onClick={() => setQuantity((q) => Math.min(currentStock, q + 1))}
-                                disabled={!selectedSize || quantity >= currentStock}
-                            >
-                                +
-                            </button>
-                        </div>
-                    </div>
-
                     <motion.button
                         type="button"
                         className="btn-primary product-detail__add"
                         whileHover={selectedSize && currentStock > 0 ? { scale: 1.02 } : {}}
                         whileTap={selectedSize && currentStock > 0 ? { scale: 0.98 } : {}}
-                        disabled={!selectedSize || currentStock === 0}
+                        disabled={!selectedSize || currentStock === 0 || adding}
                         onClick={handleAddToCart}
                     >
-                        {added ? "Added ✓" : !selectedSize ? "Select a size" : "Add to Cart"}
+                        {added ? "Added ✓" : adding ? "Adding…" : !selectedSize ? "Select a size" : "Add to Cart"}
                     </motion.button>
 
                     <div className="product-detail__description">

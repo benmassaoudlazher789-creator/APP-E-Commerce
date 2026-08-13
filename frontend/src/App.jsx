@@ -1,5 +1,6 @@
 import { Route, Routes, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
+import { Toaster } from 'react-hot-toast'
 import './App.css'
 import Home from './pages/Home'
 import Shop from './pages/Shop'
@@ -30,6 +31,7 @@ function App() {
 
   return (
     <div className="App">
+      <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
 
       {/* 
          ⭐️ MODIFICATION ICI : 

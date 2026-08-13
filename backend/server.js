@@ -2,43 +2,39 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-//instance d'express
-const app = express();
-//middleware CORS : autorise uniquement le frontend local et Netlify
-const corsOptions = {
-  origin: [
-    "http://localhost:5173",
-    "https://stupendous-medovik-046a30.netlify.app",
-  ],
-  credentials: true,
-};
-app.use(cors(corsOptions));
-//middleware pour parser le corps des requêtes en JSON
-app.use(express.json());
-const path = require("path");
 
- //connexion BD
+const app = express();
+
+const corsOptions = {
+    origin: [
+        "http://localhost:5173",
+        "https://stupendous-medovik-046a30.netlify.app",
+    ],
+    credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
+
 const connectDB = require("./config/connectDB");
 connectDB();
-//routes
-app.use("/api/auth", require("./routes/auth.routes"));
-//route des products
-app.use("/api/product", require("./routes/prod.routes"));
-//route des commandes
-app.use("/api/order", require("./routes/order.routes"));
-//route du paiement
-app.use("/api/payment", require("./routes/payment.routes"));
-//route du panier serveur
-app.use("/api/cart", require("./routes/cart.routes"));
 
+const authRoutes = require("./routes/auth.routes");
+const productRoutes = require("./routes/prod.routes");
+const orderRoutes = require("./routes/order.routes");
+const paymentRoutes = require("./routes/payment.routes");
+const cartRoutes = require("./routes/cart.routes");
 
+app.use("/api/auth", authRoutes);
+app.use("/api/product", productRoutes);
+app.use("/api/order", orderRoutes);
+app.use("/api/payment", paymentRoutes);
+app.use("/api/cart", cartRoutes);
 
-//PORT
 const PORT = process.env.PORT;
-//serveur
-app.listen(PORT , (err) => {
-    err
-    ? console.error(err)
-    : console.log(` the server is running on http://localhost:${PORT}`);
-});
 
+app.listen(PORT, (err) => {
+    err
+        ? console.error(err)
+        : console.log(` the server is running on http://localhost:${PORT}`);
+});

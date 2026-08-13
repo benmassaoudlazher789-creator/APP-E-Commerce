@@ -43,27 +43,14 @@ export const updateQuantity = (productId, size, quantity) => ({
 
 export const clearCart = () => ({ type: CLEAR_CART });
 
-// au login/register : recupere le panier serveur (autres appareils) et le fusionne avec le
-// panier local (invite). Les articles locaux sont prioritaires ; seuls les articles presents
-// uniquement cote serveur sont rajoutes. Le resultat est ensuite re-synchronise vers le
-// serveur automatiquement (voir l'abonnement au store dans store.js).
-export const mergeServerCart = () => async (dispatch, getState) => {
+// au login/register ou au refresh : charge le panier depuis MongoDB dans Redux
+export const mergeServerCart = () => async (dispatch) => {
     try {
         const token = localStorage.getItem("token");
         if (!token) return;
         const { data } = await axios.get(`${API_URL}/api/cart`, { headers: { authorization: token } });
-        const serverItems = data.items || [];
-        const localItems = getState().cartReducer.items;
-
-        const key = (item) => `${item.productId}-${item.size}`;
-        const localKeys = new Set(localItems.map(key));
-        const merged = [
-            ...localItems,
-            ...serverItems.filter((item) => !localKeys.has(key(item))),
-        ];
-
-        dispatch({ type: SET_CART, payload: merged });
+        dispatch({ type: SET_CART, payload: data.items || [] });
     } catch {
-        // pas de panier serveur ou requete echouee -> on garde le panier local tel quel
+        // pas de panier serveur ou requete echouee
     }
 };
