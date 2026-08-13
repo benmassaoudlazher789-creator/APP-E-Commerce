@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useSearchParams, Link } from "react-router-dom";
-import "./Shop.css"; // On réutilise votre CSS existant
+import "./Shop.css";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:1980';
 
@@ -24,6 +24,7 @@ const Shop = () => {
     const [selectedSizes, setSelectedSizes] = useState([]);
     const [maxPrice, setMaxPrice] = useState(200);
 
+    // Charger les produits
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
@@ -33,15 +34,17 @@ const Shop = () => {
                 setProducts(data.length > 0 ? data : MOCK_PRODUCTS);
                 setFilteredProducts(data.length > 0 ? data : MOCK_PRODUCTS);
             } catch (err) {
+                console.error("Erreur API:", err);
                 setProducts(MOCK_PRODUCTS);
                 setFilteredProducts(MOCK_PRODUCTS);
             } finally {
-                setLoading(false);
+                setLoading(false); // CRUCIAL : Arrête le chargement
             }
         };
         fetchProducts();
     }, [genderParam]);
 
+    // Filtrer les produits
     useEffect(() => {
         let result = products;
         if (selectedBrands.length > 0) {
@@ -96,11 +99,25 @@ const Shop = () => {
                 </aside>
 
                 <main className="shop-grid">
+                    {/* 1. Pendant le chargement (Squelettes) */}
                     {loading ? (
-                        <p className="loading-text">Loading products...</p>
+                        [...Array(6)].map((_, i) => (
+                            <div key={i} className="product-card skeleton">
+                                <div className="product-image-wrapper bg-gray-200"></div>
+                                <div className="product-info mt-2">
+                                    <div className="h-3 bg-gray-200 rounded w-1/4 mb-2"></div>
+                                    <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
+                                    <div className="flex justify-between mt-2">
+                                        <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                                        <div className="h-8 w-8 bg-gray-200 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
                     ) : filteredProducts.length === 0 ? (
                         <p className="no-products">No products match your criteria.</p>
                     ) : (
+                        /* 2. Les vrais produits */
                         filteredProducts.map((product) => (
                             <Link to={`/shop/${product._id}`} key={product._id} className="product-card">
                                 <div className="product-image-wrapper">

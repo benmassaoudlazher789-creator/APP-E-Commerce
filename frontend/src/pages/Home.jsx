@@ -1,5 +1,6 @@
 import React from 'react';
 import './Home.css'; 
+import { motion } from 'framer-motion';     
 
 const Hero = () => {
     return (
@@ -20,11 +21,13 @@ const Hero = () => {
 
             {/* Partie Droite : L'image de la sneaker */}
             <div className="hero-image-container">
-                <img
-                    src="https://res.cloudinary.com/dvvekltxc/image/upload/v1786474418/Screenshot_2026-08-11_195026_cdfkwh.png"
-                    alt="Red Sneaker"
-                    className="hero-image"
-                />
+               <motion.img
+    animate={{ y: [0, -15, 0] }}
+    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+    src="https://res.cloudinary.com/dvvekltxc/image/upload/v1786474418/Screenshot_2026-08-11_195026_cdfkwh.png"
+    alt="Red Sneaker"
+    className="hero-image"
+/>
             </div>
 
         </section>
