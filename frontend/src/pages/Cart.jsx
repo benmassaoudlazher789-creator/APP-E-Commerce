@@ -8,6 +8,7 @@ import { SET_CART } from "../JS/actionsType/cart.actionType";
 import { TAX_RATE, SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from "../JS/selectors/cart.selectors";
 import { API_URL, getAuthHeaders } from "../utils/api";
 import { formatPrice } from "../utils/format";
+import { STORE_BRAND } from "../utils/brand";
 import Reveal from "../components/Reveal";
 import "./Cart.css";
 
@@ -174,7 +175,7 @@ const Cart = () => {
                                     <img src={item.image || "/vite.svg"} alt={item.title} />
                                     <div className="cart-line__info">
                                         <p className="cart-line__title">{item.title}</p>
-                                        {item.brand && <p className="text-small home__muted">{item.brand}</p>}
+                                        <p className="text-small home__muted">{STORE_BRAND}</p>
                                         {item.size != null && (
                                             <p className="text-small home__muted">Size: {item.size}</p>
                                         )}

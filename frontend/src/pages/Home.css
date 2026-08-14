@@ -20,6 +20,30 @@
     gap: 25px;
 }
 
+.hero-eyebrow {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.hero-eyebrow__label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #444;
+}
+
+.hero-eyebrow::after {
+    content: "";
+    display: block;
+    width: 44px;
+    height: 2px;
+    background: var(--color-primary);
+    border-radius: 1px;
+}
+
 .hero-title {
     font-size: 3.5rem;
     font-weight: 800;
@@ -65,11 +89,14 @@
     max-width: 90%;
     height: auto;
 
-    /* ASTUCE MAGIQUE POUR ENLEVER LE FOND ROUGE (ou blanc) */
+    /* Fusionne avec le fond rose (supprime le fond blanc de l'image) */
     mix-blend-mode: multiply;
 
-    /* Ombre portée sous l'image */
-    filter: drop-shadow(0 25px 40px rgba(0, 0, 0, 0.3));
+    /* Ombre portée réaliste : contact serrée + diffusion douce pour l'effet flottant */
+    filter:
+        drop-shadow(0 6px 10px rgba(0, 0, 0, 0.18))
+        drop-shadow(0 16px 28px rgba(0, 0, 0, 0.12))
+        drop-shadow(0 32px 48px rgba(0, 0, 0, 0.08));
 }
 
 /* --- Rendre le site responsive (Pour mobile) --- */
@@ -83,6 +110,10 @@
 
     .hero-content {
         padding-right: 0;
+        align-items: center;
+    }
+
+    .hero-eyebrow {
         align-items: center;
     }
 

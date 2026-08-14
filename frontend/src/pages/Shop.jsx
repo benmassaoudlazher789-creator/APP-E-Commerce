@@ -6,16 +6,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { SET_CART } from "../JS/actionsType/cart.actionType";
 import { API_URL, getAuthHeaders } from "../utils/api";
 import { formatPrice } from "../utils/format";
+import { STORE_BRAND } from "../utils/brand";
 import "./Shop.css";
 
 const MOCK_PRODUCTS = [
-    { _id: "1", title: "Red Store Pro Runner", brand: "Red Store", price: 149.99, imageProd: "https://images.unsplash.com/photo-1593443361409-0c9267d39d6a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzA3fHxzbmVha2VyJTIwZGUlMjBSZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [40, 41, 42, 43, 44] },
-    { _id: "2", title: "Urban Red Sneakers", brand: "Red Store", price: 135.5, imageProd: "https://images.unsplash.com/photo-1675625500632-2d276bd51920?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjY0fHxzbmVha2VyJTIwZGUlMjBSZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [41, 42, 43, 45] },
-    { _id: "3", title: "Classic Red Runner", brand: "Red Store", price: 119.99, imageProd: "https://images.unsplash.com/photo-1656085180791-0e634c8bd1e6?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTgzfHxzbmVha2VyJTIwZGUlMjBSZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [40, 42, 44, 46] },
-    { _id: "4", title: "Street Red Edition", brand: "Red Store", price: 159.0, imageProd: "https://images.unsplash.com/photo-1620114315899-abb0930264fd?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTYwfHxzbmVha2VyJTIwZGUlMjBSZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [41, 42, 43, 44] },
-    { _id: "5", title: "Velocity Red", brand: "Red Store", price: 139.9, imageProd: "https://images.unsplash.com/photo-1706611760588-41ebba31012b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTQ0fHxzbmVha2VyJTIwZGUlMjBSZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [40, 41, 43, 45] },
-    { _id: "6", title: "Red Store Speedstar", brand: "Red Store", price: 129.0, imageProd: "https://images.unsplash.com/photo-1656944227480-98180d2a5155?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fHNuZWFrZXIlMjBkZSUyMHJlZCUyMHN0b3JlfGVufDB8fDB8fHww", sizes: [42, 43, 44, 46] },
+    { _id: "1", title: "Red Store Pro Runner", brand: STORE_BRAND, price: 149.99, imageProd: "https://images.unsplash.com/photo-1593443361409-0c9267d39d6a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzA3fHxzbmVha2VyJTIwZGUlMjBSZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [40, 41, 42, 43, 44] },
+    { _id: "2", title: "Urban Red Sneakers", brand: STORE_BRAND, price: 135.5, imageProd: "https://images.unsplash.com/photo-1675625500632-2d276bd51920?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjY0fHxzbmVha2VyJTIwZGUlMjBSZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [41, 42, 43, 45] },
+    { _id: "3", title: "Classic Red Runner", brand: STORE_BRAND, price: 119.99, imageProd: "https://images.unsplash.com/photo-1656085180791-0e634c8bd1e6?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTgzfHxzbmVha2VyJTIwZGUlMjBSZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [40, 42, 44, 46] },
+    { _id: "4", title: "Street Red Edition", brand: STORE_BRAND, price: 159.0, imageProd: "https://images.unsplash.com/photo-1620114315899-abb0930264fd?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTYwfHxzbmVha2VyJTIwZGUlMjBSZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [41, 42, 43, 44] },
+    { _id: "5", title: "Velocity Red", brand: STORE_BRAND, price: 139.9, imageProd: "https://images.unsplash.com/photo-1706611760588-41ebba31012b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTQ0fHxzbmVha2VyJTIwZGUlMjBSZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [40, 41, 43, 45] },
+    { _id: "6", title: "Red Store Speedstar", brand: STORE_BRAND, price: 129.0, imageProd: "https://images.unsplash.com/photo-1656944227480-98180d2a5155?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fHNuZWFrZXIlMjBkZSUyMHJlZCUyMHN0b3JlfGVufDB8fDB8fHww", sizes: [42, 43, 44, 46] },
 ];
+
+const withStoreBrand = (products) => products.map((p) => ({ ...p, brand: STORE_BRAND }));
 
 const GENDER_LABELS = {
     men: "Men's Shoes",
@@ -45,8 +48,9 @@ const Shop = () => {
             try {
                 const res = await axios.get(`${API_URL}/api/product/search`, { params: { gender: genderParam } });
                 const data = res.data.Prod || res.data || [];
-                setProducts(data.length > 0 ? data : MOCK_PRODUCTS);
-                setFilteredProducts(data.length > 0 ? data : MOCK_PRODUCTS);
+                const normalized = withStoreBrand(data.length > 0 ? data : MOCK_PRODUCTS);
+                setProducts(normalized);
+                setFilteredProducts(normalized);
             } catch (err) {
                 console.error("Erreur API:", err);
                 setProducts(MOCK_PRODUCTS);
@@ -125,7 +129,7 @@ const Shop = () => {
                 <aside className="shop-filters">
                     <div className="filter-group">
                         <h3>Brand</h3>
-                        {[...new Set(products.map((p) => p.brand).filter(Boolean))].map((brand) => (
+                        {[STORE_BRAND].map((brand) => (
                             <label key={brand} className="filter-checkbox">
                                 <input
                                     type="checkbox"
@@ -206,7 +210,7 @@ const Shop = () => {
                                         <span className="product-card__badge">New</span>
                                     </div>
                                     <div className="product-info">
-                                        <span className="product-brand">{product.brand || "Red Store"}</span>
+                                        <span className="product-brand">{STORE_BRAND}</span>
                                         <h3 className="product-title">{product.title}</h3>
                                         <div className="product-footer">
                                             <span className="product-price">{formatPrice(product.price)}</span>

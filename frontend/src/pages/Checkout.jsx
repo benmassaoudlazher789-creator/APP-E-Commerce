@@ -17,6 +17,7 @@ import {
 } from "../JS/selectors/cart.selectors";
 import { API_URL, getAuthHeaders } from "../utils/api";
 import { formatPrice } from "../utils/format";
+import { STORE_BRAND } from "../utils/brand";
 import CheckoutSteps from "./checkout/CheckoutSteps";
 import ShippingStep from "./checkout/ShippingStep";
 import PaymentStep from "./checkout/PaymentStep";
@@ -360,8 +361,9 @@ function CheckoutContent() {
                     <h4>Order Total</h4>
                     {items.map((item) => (
                         <div key={`${item.productId}-${item.size}`} className="review-item">
-                            <span>
-                                {item.title} × {item.quantity}
+                            <span className="review-item__detail">
+                                <span className="review-item__brand">{STORE_BRAND}</span>
+                                <span>{item.title} × {item.quantity}</span>
                             </span>
                             <span>
                                 {formatPrice((Number(item.price) || 0) * (Number(item.quantity) || 1))}

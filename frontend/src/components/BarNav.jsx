@@ -91,7 +91,7 @@ function BarNav() {
         <Navbar
             expand="lg"
             fixed="top"
-            className={`red-navbar ${scrolled ? "red-navbar--scrolled" : ""} ${!isHome ? 'red-navbar--solid' : ''}`}
+            className={`red-navbar ${isHome ? "red-navbar--home" : "red-navbar--solid"} ${scrolled ? "red-navbar--scrolled" : ""}`}
         >
             <Container fluid className="red-navbar__container">
                 <Navbar.Brand as={Link} to="/" className="red-navbar__brand">

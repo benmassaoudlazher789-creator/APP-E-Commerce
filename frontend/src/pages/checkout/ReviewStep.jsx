@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { formatPrice } from "../../utils/format";
+import { STORE_BRAND } from "../../utils/brand";
 
 function ReviewStep({
     shippingInfo,
@@ -43,8 +44,9 @@ function ReviewStep({
                 <h4>Items</h4>
                 {items.map((item) => (
                     <div key={`${item.productId}-${item.size}`} className="review-item">
-                        <span>
-                            {item.title} · Size {item.size} × {item.quantity}
+                        <span className="review-item__detail">
+                            <span className="review-item__brand">{STORE_BRAND}</span>
+                            <span>{item.title} · Size {item.size} × {item.quantity}</span>
                         </span>
                         <span>{formatPrice(item.price * item.quantity)}</span>
                     </div>

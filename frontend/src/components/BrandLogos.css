@@ -1,0 +1,48 @@
+.brand-logos {
+    padding: clamp(2rem, 4vw, 3rem) clamp(1.25rem, 4vw, 5rem);
+    background: #ffffff;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.brand-logos__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(2rem, 5vw, 3.5rem);
+    max-width: 1100px;
+    margin-inline: auto;
+    list-style: none;
+    padding: 0;
+    margin-block: 0;
+}
+
+.brand-logos__item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #c8c8c8;
+    transition: color var(--transition), transform var(--transition);
+    cursor: default;
+}
+
+.brand-logos__item:hover {
+    color: var(--brand-color);
+    transform: translateY(-2px);
+}
+
+.brand-logos__icon {
+    display: block;
+    height: clamp(22px, 2.5vw, 28px);
+    width: auto;
+}
+
+@media (max-width: 600px) {
+    .brand-logos__list {
+        gap: 1.75rem 2.25rem;
+    }
+
+    .brand-logos__icon {
+        height: 20px;
+    }
+}
