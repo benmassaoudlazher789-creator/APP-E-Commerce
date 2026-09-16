@@ -4,6 +4,9 @@ import { Toaster } from 'react-hot-toast'
 import './App.css'
 import Home from './pages/Home'
 import Shop from './pages/Shop'
+import Sale from './pages/Sale'
+import About from './pages/About'
+import Contact from './pages/Contact'
 import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
@@ -59,6 +62,33 @@ function App() {
                 <>
                   <BarNav />
                   <Shop />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/sale" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <Sale />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/about" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <About />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/contact" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <Contact />
                 </>
               </PageTransition>
             } />
@@ -174,7 +204,7 @@ function App() {
           </Routes>
         </AnimatePresence>
       </main>
-      <Footer />
+
 
     </div>
   );

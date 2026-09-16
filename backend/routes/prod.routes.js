@@ -1,5 +1,5 @@
 const express = require("express")
-const { addProduct, getAllProd, searchProd, getOneProd, getMyProd, updateMyProd, deleteProd} = require("../controller/product.controller")
+const { addProduct, getAllProd, searchProd, getOneProd, getMyProd, updateMyProd, deleteProd, generateDescription } = require("../controller/product.controller")
 const isAuth = require("../middlewares/isAuth")
 const upload = require("../util/multer")
 
@@ -19,6 +19,8 @@ const router = express.Router()
 
 //add product
    router.post ('/addProd', isAuth, productImages, addProduct)
+   //generer une description produit via l'IA (Claude)
+   router.post('/generate-description', isAuth, generateDescription)
    //get all des produits
    router.get ('/allProd' , getAllProd)
    //recherche full-text (titre/description/categorie/marque)

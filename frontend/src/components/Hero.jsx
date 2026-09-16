@@ -1,5 +1,6 @@
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import "./Home.css";
+import "../pages/Home.css"; // Assurez-vous que ce fichier existe bien
 
 const SNEAKER_IMAGE =
     "https://res.cloudinary.com/dvvekltxc/image/upload/v1786474418/Screenshot_2026-08-11_195026_cdfkwh.png";
@@ -15,17 +16,17 @@ function Hero() {
                     Step Up Your Game <br /> With Red Store!
                 </h1>
                 <p className="hero-description">
-                    Discover our latest Red Store sneakers — designed in-house for style and built for performance.
+                    Discover our latest Red Store shoes — designed in-house for style and built for performance.
                 </p>
-                <button type="button" className="hero-btn">
+                <Link to="/shop?gender=men" className="hero-btn">
                     Shop Now &rarr;
-                </button>
+                </Link>
             </div>
 
             <div className="hero-image-container">
                 <motion.img
                     src={SNEAKER_IMAGE}
-                    alt="Red Store sneaker"
+                    alt="Red Store shoes"
                     className="hero-image"
                     animate={{ y: [0, -15, 0] }}
                     transition={{
@@ -33,6 +34,8 @@ function Hero() {
                         repeat: Infinity,
                         ease: "easeInOut",
                     }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                 />
             </div>
         </section>

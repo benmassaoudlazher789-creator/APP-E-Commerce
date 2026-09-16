@@ -1,58 +1,57 @@
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Heart } from "lucide-react";
 import { getWishlist } from "../JS/actions/wishlist.action";
+import SectionHeading from "../components/SectionHeading";
 import ProductGrid from "../components/ProductGrid";
 import Reveal from "../components/Reveal";
-import "../styles/tailwind-scoped.css";
+import "./Wishlist.css";
 
 const Wishlist = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const token = localStorage.getItem("token");
     const user = useSelector((state) => state.authReducer.user);
     const { items, isLoad } = useSelector((state) => state.wishlistReducer);
 
     useEffect(() => {
-        if (!user) {
-            navigate("/login");
+        // verifie le token en local (synchrone), pas `user` en Redux : `user` reste null le
+        // temps que current() (dispatche globalement par App.jsx) resolve apres un
+        // rechargement, ce qui renvoyait sinon a tort vers /login un utilisateur connecte
+        if (!token) {
+            navigate("/login", { replace: true });
             return;
         }
         dispatch(getWishlist());
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dispatch, navigate]);
+    }, [dispatch, navigate, token]);
 
-    if (!user) return null;
+    if (!token || !user) return null;
 
     return (
-        <div className="tw-scope">
-            <div className="mx-auto max-w-6xl px-4 py-8 lg:px-8 lg:py-10">
+        <div className="wishlist-page">
+            <div className="section">
                 <Reveal>
-                    <div className="mb-6 flex items-baseline justify-between">
-                        <h1 className="text-3xl font-bold tracking-tight text-neutral-900">My Wishlist</h1>
-                        {!isLoad && items.length > 0 && (
-                            <p className="text-sm text-neutral-500">
-                                {items.length} product{items.length !== 1 ? "s" : ""}
-                            </p>
-                        )}
-                    </div>
+                    <SectionHeading title="My Wishlist" />
+                    {!isLoad && items.length > 0 && (
+                        <p className="wishlist-page__count">
+                            {items.length} product{items.length !== 1 ? "s" : ""}
+                        </p>
+                    )}
                 </Reveal>
 
                 {isLoad ? (
-                    <p className="py-24 text-center text-sm text-neutral-500">Loading wishlist…</p>
+                    <p className="text-small home__muted">Loading wishlist…</p>
                 ) : items.length === 0 ? (
-                    <div className="py-24 text-center">
-                        <p className="mb-4 text-sm text-neutral-500">
-                            You haven&apos;t saved any shoes yet.
-                        </p>
-                        <Link
-                            to="/shop"
-                            className="inline-block rounded-lg bg-[#e63946] px-5 py-2.5 text-sm font-semibold text-white no-underline transition-colors hover:bg-[#c1121f]"
-                        >
-                            Browse the shop
+                    <Reveal className="wishlist-empty">
+                        <Heart size={56} strokeWidth={1.5} className="wishlist-empty__icon" aria-hidden="true" />
+                        <p className="wishlist-empty__text">You haven&apos;t saved any shoes yet.</p>
+                        <Link to="/shop" className="btn-primary">
+                            Shop Now
                         </Link>
-                    </div>
+                    </Reveal>
                 ) : (
-                    <ProductGrid products={items} emptyMessage="You haven't saved any shoes yet." />
+                    <ProductGrid products={items} />
                 )}
             </div>
         </div>

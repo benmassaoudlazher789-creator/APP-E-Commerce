@@ -1,5 +1,7 @@
 const Product = require("../model/Product")
 const cloudinary = require("../util/cloudinary")
+const getAnthropicClient = require("../util/anthropic")
+const Anthropic = require("@anthropic-ai/sdk")
 
 //upload l'image principale (champ "imageProd") et la galerie (champ "images") vers cloudinary
 const uploadProductImages = async (files) => {
@@ -54,7 +56,18 @@ exports.getAllProd = async (req, res) => {
         const filter = {};
         if (req.query.gender) filter.gender = req.query.gender;
         if (req.query.category) filter.category = req.query.category;
-        const Prod = await Product.find(filter)
+        //filtre optionnel pour la page "Sale" (?onSale=true)
+        if (req.query.onSale === "true") filter.isOnSale = true;
+        let query = Product.find(filter);
+
+        //tri optionnel (?sort=newest) : les plus recents d'abord, pour la section "New Arrivals"
+        if (req.query.sort === "newest") query = query.sort({ createdAt: -1 });
+
+        //limite optionnelle (?limit=8), sans impact sur les appels existants qui ne la passent pas
+        const limit = Number(req.query.limit);
+        if (Number.isInteger(limit) && limit > 0) query = query.limit(limit);
+
+        const Prod = await query;
         res.status(200).json({ msg: "Products:", Prod })
 
 
@@ -92,7 +105,11 @@ exports.getOneProd = async (req, res) => {
 
 
     } catch (error) {
-
+        // id malformé (pas un ObjectId Mongo valide, ex. un id placeholder jamais remplacé
+        // cote frontend) : 400, pas 500 - ce n'est pas une erreur serveur
+        if (error.name === "CastError") {
+            return res.status(400).json({ msg: "Invalid product id" });
+        }
         res.status(500).json({ msg: "Fail to get this prod", error });
     }
 
@@ -135,6 +152,54 @@ exports.updateMyProd = async (req, res) => {
     }
 
 };
+//genere (ou ameliore) une description produit via Claude a partir des infos fournies
+exports.generateDescription = async (req, res) => {
+    try {
+        const { title, category, brand, gender, price, keywords, draft } = req.body;
+        if (!title) return res.status(400).json({ msg: "title is required" });
+
+        const details = [
+            `Titre: ${title}`,
+            category && `Categorie: ${category}`,
+            brand && `Marque: ${brand}`,
+            gender && `Genre: ${gender}`,
+            price && `Prix: ${price} EUR`,
+            Array.isArray(keywords) && keywords.length && `Mots-cles: ${keywords.join(", ")}`,
+            draft && `Brouillon existant a ameliorer: ${draft}`,
+        ].filter(Boolean).join("\n");
+
+        const anthropic = getAnthropicClient();
+        const response = await anthropic.messages.create({
+            model: "claude-opus-5",
+            max_tokens: 1024,
+            output_config: { effort: "medium" },
+            system:
+                "Tu es un copywriter e-commerce specialise dans la chaussure et la mode. " +
+                "A partir des informations produit fournies, redige une description produit en " +
+                "francais: 2 a 4 phrases vendeuses puis 3 a 5 points cles sous forme de liste a puces. " +
+                "N'invente aucune caracteristique (matiere, garantie, origine...) qui n'est pas fournie " +
+                "dans les informations. Reponds uniquement avec la description, sans preambule ni titre.",
+            messages: [{ role: "user", content: details }],
+        });
+
+        const textBlock = response.content.find((block) => block.type === "text");
+        res.status(200).json({ msg: "Description generated", description: textBlock?.text ?? "" });
+
+    } catch (error) {
+        if (error instanceof Anthropic.RateLimitError) {
+            return res.status(429).json({ msg: "AI service is rate limited, try again later" });
+        }
+        if (
+            error instanceof Anthropic.AuthenticationError ||
+            error instanceof Anthropic.BadRequestError ||
+            error.message?.includes("Could not resolve authentication method")
+        ) {
+            return res.status(502).json({ msg: "AI service is not configured (missing ANTHROPIC_API_KEY)" });
+        }
+        res.status(500).json({ msg: "Fail to generate description", error });
+    }
+};
+
 //extrait le public_id cloudinary d'une secure_url pour pouvoir la supprimer
 //(l'app ne stocke que l'URL, pas le public_id, contrairement a User.cloudinary_id)
 const publicIdFromUrl = (url) => {

@@ -117,11 +117,11 @@ function BarNav() {
                         <Nav.Link as={Link} to="/shop">
                             New Arrivals
                         </Nav.Link>
-                        <Nav.Link as={Link} to="/shop">
+                        <Nav.Link as={Link} to="/sale">
                             Sale
                         </Nav.Link>
-                        <Nav.Link as={Link} to="/">
-                            About
+                        <Nav.Link as={Link} to="/contact">
+                            Contact
                         </Nav.Link>
                     </Nav>
 
@@ -215,6 +215,7 @@ function BarNav() {
                                     </NavDropdown.Item>
                                     <NavDropdown.Item
                                         as="button"
+                                        className="red-navbar__account-logout"
                                         onClick={() => dispatch(logout(navigate))}
                                     >
                                         Logout

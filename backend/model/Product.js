@@ -58,6 +58,21 @@ const productSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : "user",
     },
+    //prix avant reduction, affiche barre a cote de price sur la page Sale
+    originalPrice :{
+        type : Number,
+    },
+    //pourcentage de reduction affiche sur le badge produit (ex: 25 -> "-25%")
+    discountPercentage :{
+        type : Number,
+        min : 0,
+        max : 100,
+    },
+    //true pour faire apparaitre le produit dans /api/product/allProd?onSale=true
+    isOnSale :{
+        type : Boolean,
+        default : false,
+    },
 
 },
 

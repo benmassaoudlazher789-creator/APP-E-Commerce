@@ -33,14 +33,13 @@
 }
 
 .auth-field {
-    margin-bottom: var(--space-3) !important;
-}
-
-.auth-field label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
     font-weight: 600;
     font-size: 14px;
     color: var(--color-text);
-    margin-bottom: 6px;
+    margin-bottom: var(--space-3);
 }
 
 .auth-field .form-text {
@@ -49,27 +48,36 @@
     margin-top: 4px;
 }
 
+.auth-field__error {
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--color-error);
+}
+
 .auth-card .form-message {
     margin-bottom: var(--space-3);
 }
 
 .auth-submit {
     width: 100%;
-    background: var(--color-primary) !important;
-    border-color: var(--color-primary) !important;
-    padding: 10px !important;
-    font-weight: 700 !important;
-    border-radius: var(--radius) !important;
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    padding: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    border-radius: var(--radius);
+    cursor: pointer;
     transition: background var(--transition), transform var(--transition);
 }
 
 .auth-submit:hover:not(:disabled) {
-    background: var(--color-primary-dark) !important;
-    border-color: var(--color-primary-dark) !important;
+    background: var(--color-primary-dark);
 }
 
 .auth-submit:disabled {
     opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .auth-switch {

@@ -1,73 +1,85 @@
-
-
 import { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, Link } from 'react-router-dom';
 import { login } from "../JS/actions/auth.action";
-import { useNavigate } from 'react-router-dom';
+import { validateLogin } from "../utils/validators";
 import "./Auth.css";
-import "../styles/tailwind-scoped.css";
-import AnimatedInput from "@/components/ui/smoothui/animated-input";
+
+const initialData = { email: "", password: "" };
 
 function Login() {
-  const [userToConnect, setUserToConnect]= useState({
-   email: "", password:""
-
-  })
-  const dispatch = useDispatch()
+  const [userToConnect, setUserToConnect] = useState(initialData);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const errors = useSelector(state => state.authReducer.errors)
-  const handleChange = (e)=>{
-     setUserToConnect({...userToConnect, [e.target.name]: e.target.value})
+  const isLoad = useSelector((state) => state.authReducer.isLoad);
+  const serverError = useSelector((state) => state.authReducer.errors);
 
-  }
-  const handleSubmit = (e)=>{
-   e.preventDefault();
-   dispatch(
-    login({
-     email: userToConnect.email.trim(),
-     password: userToConnect.password.trim(),
+  const handleChange = (e) => {
+    setUserToConnect({ ...userToConnect, [e.target.name]: e.target.value });
+  };
 
-    }, navigate)
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const errors = validateLogin(userToConnect);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
 
-   )
+    dispatch(
+      login({
+        email: userToConnect.email.trim(),
+        password: userToConnect.password,
+      }, navigate)
+    );
+  };
 
-  }
   return (
-    <div className="auth-page tw-scope">
+    <div className="auth-page">
       <div className="auth-card">
-        <h2 className="auth-card__title">Login</h2>
-        <Form onSubmit={handleSubmit}>
-          <div className="auth-field">
-            <AnimatedInput
-              label="Adresse email"
+        <h2 className="auth-card__title">Log in</h2>
+
+        {serverError && serverError.length > 0 && (
+          <p className="form-message form-message--error">{serverError}</p>
+        )}
+
+        <form onSubmit={handleSubmit} noValidate>
+          <label className="auth-field">
+            Email Address
+            <input
+              type="email"
+              name="email"
+              className="form-input"
+              placeholder="you@example.com"
               value={userToConnect.email}
-              onChange={(val) => setUserToConnect({ ...userToConnect, email: val })}
+              onChange={handleChange}
             />
-          </div>
+            {fieldErrors.email && <span className="auth-field__error">{fieldErrors.email}</span>}
+          </label>
 
-          <Form.Group className="auth-field" controlId="formBasicPassword">
-            <Form.Label>Mot de passe</Form.Label>
-            <Form.Control className="form-input" type="password" placeholder="Password" name='password' value={userToConnect.password} onChange={handleChange} required />
-          </Form.Group>
+          <label className="auth-field">
+            Password
+            <input
+              type="password"
+              name="password"
+              className="form-input"
+              placeholder="Your password"
+              value={userToConnect.password}
+              onChange={handleChange}
+            />
+            {fieldErrors.password && <span className="auth-field__error">{fieldErrors.password}</span>}
+          </label>
 
-          <p className="auth-switch">
-            <a href="/forgot-password">Forgot password?</a>
-          </p>
+          <button type="submit" className="auth-submit" disabled={isLoad}>
+            {isLoad ? "Logging in..." : "Log In"}
+          </button>
+        </form>
 
-          {errors && errors.length > 0 && (
-            <p className="form-message form-message--error" role="alert">{errors}</p>
-          )}
-
-          <p className="auth-switch">
-            Utilisée uniquement pour la connexion à votre compte <a href="/register">Créer un compte</a>
-          </p>
-
-          <Button variant="primary" type="submit" className="auth-submit" disabled={!userToConnect.email || !userToConnect.password}>
-            Submit
-          </Button>
-        </Form>
+        <p className="auth-switch">
+          <Link to="/forgot-password">Forgot your password?</Link>
+        </p>
+        <p className="auth-switch">
+          Don&apos;t have an account? <Link to="/register">Create one</Link>
+        </p>
       </div>
     </div>
   );

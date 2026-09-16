@@ -32,11 +32,15 @@
     -webkit-backdrop-filter: none;
 }
 
-/* Après scroll : verre dépoli blanc + ombre */
+/* Après scroll : verre dépoli blanc + ombre.
+   saturate(180%) amplifiait les couleurs des visuels produits (vert gazon,
+   etc.) qui defilent sous la navbar fixed, ce qui faisait apparaitre des
+   taches colorees "fantomes" derriere le flou ; fond plus opaque + pas de
+   sur-saturation pour un verre depoli neutre. */
 .red-navbar--scrolled {
-    background: rgba(255, 255, 255, 0.88) !important;
-    backdrop-filter: blur(14px) saturate(180%);
-    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     box-shadow:
         0 4px 24px rgba(230, 57, 70, 0.08),
         0 1px 0 rgba(255, 255, 255, 0.6) inset;
@@ -45,7 +49,7 @@
 
 /* Autres pages : barre blanche légèrement floutée dès le chargement */
 .red-navbar--solid {
-    background: rgba(255, 255, 255, 0.92) !important;
+    background: rgba(255, 255, 255, 0.96) !important;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
@@ -363,9 +367,72 @@
     outline-offset: 2px;
 }
 
+/* --- MENU DU DROPDOWN COMPTE --- */
+.red-navbar__account .dropdown-menu {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card-hover);
+    padding: var(--space-1) 0;
+    min-width: 210px;
+    transform-origin: top right;
+}
+
+@keyframes red-dropdown-in {
+    from {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.red-navbar__account .dropdown-menu.show {
+    animation: red-dropdown-in 180ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .red-navbar__account .dropdown-menu.show {
+        animation: none;
+    }
+}
+
 .red-navbar__account-hi {
+    display: block;
+    padding: 10px var(--space-2) 12px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--color-border);
     font-weight: 700;
     color: var(--color-text);
+}
+
+.red-navbar__account .dropdown-item {
+    padding: 12px var(--space-2);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text);
+    transition: background-color var(--transition), color var(--transition);
+}
+
+.red-navbar__account .dropdown-item:hover,
+.red-navbar__account .dropdown-item:focus {
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+
+.red-navbar__account-logout {
+    margin-top: 4px;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-primary) !important;
+    font-weight: 600;
+}
+
+.red-navbar__account-logout:hover,
+.red-navbar__account-logout:focus {
+    background: rgba(230, 57, 70, 0.06) !important;
+    color: var(--color-primary) !important;
 }
 
 /* --- PANIER --- */

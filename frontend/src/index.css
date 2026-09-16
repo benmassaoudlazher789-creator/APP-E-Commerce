@@ -19,6 +19,7 @@
 
 body {
   margin: 0;
+  font-family: 'Poppins', sans-serif; /* Police principale du site */
 }
 
 #root {
@@ -33,7 +34,7 @@ h1,
 h2,
 h3,
 h4 {
-  font-family: var(--font-sans);
+  font-family: 'Poppins', sans-serif; /* Harmonisé avec le body */
   color: var(--color-text);
   margin: 0;
 }
@@ -74,7 +75,7 @@ a {
 }
 
 button {
-  font-family: var(--font-sans);
+  font-family: 'Poppins', sans-serif;
 }
 
 @media (max-width: 1024px) {
@@ -87,4 +88,12 @@ button {
   h3 {
     font-size: 20px;
   }
+}
+
+/* Titres de sections (utilisation dans CategoriesSection, ProductGrid, etc.) */
+h2.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 2rem;
 }

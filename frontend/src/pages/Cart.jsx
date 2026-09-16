@@ -1,12 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { SET_CART } from "../JS/actionsType/cart.actionType";
-import { TAX_RATE, SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from "../JS/selectors/cart.selectors";
-import { API_URL, getAuthHeaders } from "../utils/api";
+import { getCart, updateCartQuantity, removeFromCart } from "../JS/actions/cart.action";
+import { TAX_RATE, SHIPPING_COST, FREE_SHIPPING_THRESHOLD, selectSubtotal } from "../JS/selectors/cart.selectors";
 import { formatPrice } from "../utils/format";
 import { STORE_BRAND } from "../utils/brand";
 import Reveal from "../components/Reveal";
@@ -19,83 +17,34 @@ const Cart = () => {
     const isAuth = useSelector((state) => state.authReducer.isAuth);
     const token = localStorage.getItem("token");
 
-    const [items, setItems] = useState([]);
-    const [totalPrice, setTotalPrice] = useState(0);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const items = useSelector((state) => state.cartReducer.items);
+    const isLoad = useSelector((state) => state.cartReducer.isLoad);
+    const errors = useSelector((state) => state.cartReducer.errors);
+    const totalPrice = useSelector(selectSubtotal);
+
     const [updatingKey, setUpdatingKey] = useState(null);
 
     const itemKey = (item) => `${item.productId}-${item.size ?? "default"}`;
 
-    const fetchCart = useCallback(async () => {
-        if (!isAuth || !token) {
-            setItems([]);
-            setTotalPrice(0);
-            setLoading(false);
-            return;
-        }
-
-        try {
-            setError(null);
-            const { data } = await axios.get(`${API_URL}/api/cart`, { headers: getAuthHeaders() });
-            const cartItems = data.items || [];
-            setItems(cartItems);
-            setTotalPrice(data.totalPrice ?? 0);
-            dispatch({ type: SET_CART, payload: cartItems });
-        } catch (err) {
-            toast.error("Erreur lors du chargement du panier");
-            console.error(err.response?.data?.msg || err.message);
-            setError("Unable to load your cart. Please try again later.");
-            setItems([]);
-            setTotalPrice(0);
-        } finally {
-            setLoading(false);
-        }
+    useEffect(() => {
+        if (isAuth && token) dispatch(getCart());
     }, [dispatch, isAuth, token]);
 
-    useEffect(() => {
-        fetchCart();
-    }, [fetchCart]);
-
     const handleQuantityChange = async (item, delta) => {
-        if (!token) return;
-
         const key = itemKey(item);
         setUpdatingKey(key);
-        try {
-            await axios.post(
-                `${API_URL}/api/cart/add`,
-                { productId: item.productId, quantity: delta, size: item.size },
-                { headers: getAuthHeaders() }
-            );
-            await fetchCart();
-        } catch (err) {
-            toast.error("Erreur lors de la mise à jour du panier");
-            console.error(err.response?.data?.msg || err.message);
-        } finally {
-            setUpdatingKey(null);
-        }
+        const result = await dispatch(updateCartQuantity(item.productId, item.size, delta));
+        if (!result.success) toast.error(result.error || "Erreur lors de la mise à jour du panier");
+        setUpdatingKey(null);
     };
 
     const handleRemove = async (item) => {
-        if (!token) return;
-
         const key = itemKey(item);
         setUpdatingKey(key);
-        try {
-            const sizeQuery = item.size != null ? `?size=${item.size}` : "";
-            await axios.delete(
-                `${API_URL}/api/cart/remove/${item.productId}${sizeQuery}`,
-                { headers: getAuthHeaders() }
-            );
-            await fetchCart();
-            toast.success("Article retiré du panier");
-        } catch (err) {
-            toast.error("Erreur lors de la suppression");
-            console.error(err.response?.data?.msg || err.message);
-        } finally {
-            setUpdatingKey(null);
-        }
+        const result = await dispatch(removeFromCart(item.productId, item.size));
+        if (result.success) toast.success("Article retiré du panier");
+        else toast.error(result.error || "Erreur lors de la suppression");
+        setUpdatingKey(null);
     };
 
     const tax = totalPrice * TAX_RATE;
@@ -114,7 +63,9 @@ const Cart = () => {
         );
     }
 
-    if (loading) {
+    const isInitialLoading = isLoad && items.length === 0;
+
+    if (isInitialLoading) {
         return (
             <div className="cart-page">
                 <Reveal>
@@ -125,12 +76,12 @@ const Cart = () => {
         );
     }
 
-    if (error) {
+    if (errors && items.length === 0) {
         return (
             <Reveal className="cart-empty">
                 <h2>Something went wrong</h2>
-                <p className="text-small home__muted">{error}</p>
-                <button type="button" className="btn-primary" onClick={fetchCart}>
+                <p className="text-small home__muted">{errors}</p>
+                <button type="button" className="btn-primary" onClick={() => dispatch(getCart())}>
                     Retry
                 </button>
             </Reveal>

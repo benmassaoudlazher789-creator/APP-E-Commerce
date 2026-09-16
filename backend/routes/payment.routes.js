@@ -1,6 +1,6 @@
 const express = require("express");
 const Stripe = require("stripe");
-const isAuth = require("../middlewares/isAuth");
+const optionalAuth = require("../middlewares/optionalAuth");
 const PaymentIntent = require("../model/PaymentIntent");
 const { processPayment } = require("../controller/payment.controller");
 
@@ -8,7 +8,9 @@ const router = express.Router();
 
 // POST /api/payment/create-payment-intent
 // Body: { totalPrice: number } — montant en dollars ; converti en centimes pour Stripe
-router.post("/create-payment-intent", isAuth, async (req, res) => {
+// optionalAuth (pas isAuth) : le checkout invite est supporte partout ailleurs (createOrder,
+// req.user?._id ci-dessous), isAuth ici bloquait a tort le paiement par carte des invites
+router.post("/create-payment-intent", optionalAuth, async (req, res) => {
     try {
         const totalPrice = Number(req.body.totalPrice ?? req.body.amount);
 

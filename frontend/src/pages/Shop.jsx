@@ -3,22 +3,74 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useSearchParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { SET_CART } from "../JS/actionsType/cart.actionType";
-import { API_URL, getAuthHeaders } from "../utils/api";
+import { motion } from "framer-motion";
+import { Heart } from "lucide-react";
+import { addToCart } from "../JS/actions/cart.action";
+import { addToWishlist, removeFromWishlist } from "../JS/actions/wishlist.action";
+import { API_URL } from "../utils/api";
 import { formatPrice } from "../utils/format";
 import { STORE_BRAND } from "../utils/brand";
-import "./Shop.css";
+import "./Shop.css"; // IMPORT CRUCIAL : Le CSS classique
 
 const MOCK_PRODUCTS = [
-    { _id: "1", title: "Red Store Pro Runner", brand: STORE_BRAND, price: 149.99, imageProd: "https://images.unsplash.com/photo-1593443361409-0c9267d39d6a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzA3fHxzbmVha2VyJTIwZGUlMjBSZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [40, 41, 42, 43, 44] },
-    { _id: "2", title: "Urban Red Sneakers", brand: STORE_BRAND, price: 135.5, imageProd: "https://images.unsplash.com/photo-1675625500632-2d276bd51920?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjY0fHxzbmVha2VyJTIwZGUlMjBSZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [41, 42, 43, 45] },
-    { _id: "3", title: "Classic Red Runner", brand: STORE_BRAND, price: 119.99, imageProd: "https://images.unsplash.com/photo-1656085180791-0e634c8bd1e6?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTgzfHxzbmVha2VyJTIwZGUlMjBSZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [40, 42, 44, 46] },
-    { _id: "4", title: "Street Red Edition", brand: STORE_BRAND, price: 159.0, imageProd: "https://images.unsplash.com/photo-1620114315899-abb0930264fd?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTYwfHxzbmVha2VyJTIwZGUlMjBSZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [41, 42, 43, 44] },
-    { _id: "5", title: "Velocity Red", brand: STORE_BRAND, price: 139.9, imageProd: "https://images.unsplash.com/photo-1706611760588-41ebba31012b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTQ0fHxzbmVha2VyJTIwZGUlMjBSZWQlMjBzdG9yZXxlbnwwfHwwfHx8MA%3D%3D", sizes: [40, 41, 43, 45] },
-    { _id: "6", title: "Red Store Speedstar", brand: STORE_BRAND, price: 129.0, imageProd: "https://images.unsplash.com/photo-1656944227480-98180d2a5155?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fHNuZWFrZXIlMjBkZSUyMHJlZCUyMHN0b3JlfGVufDB8fDB8fHww", sizes: [42, 43, 44, 46] },
+    {
+        _id: "1",
+        title: "Red Store Urban Runner",
+        brand: "Red Store",
+        price: 139.99,
+        imageProd: "https://res.cloudinary.com/dvvekltxc/image/upload/v1786646076/Screenshot_2026-08-13_192224_ewcnfr.png?v=2",
+        sizes: [40, 41, 42, 43, 44]
+    },
+    {
+        _id: "2",
+        title: "Red Store Premium Leather",
+        brand: "Red Store",
+        price: 159.50,
+        imageProd: "https://res.cloudinary.com/dvvekltxc/image/upload/v1786646056/Screenshot_2026-08-13_192259_p9jq8i.png?v=2",
+        sizes: [41, 42, 43, 45]
+    },
+    {
+        _id: "3",
+        title: "Red Store Classic Retro",
+        brand: "Red Store",
+        price: 119.99,
+        imageProd: "https://res.cloudinary.com/dvvekltxc/image/upload/v1786646097/Screenshot_2026-08-13_192216_x4citu.png?v=2",
+        sizes: [40, 42, 44, 46]
+    },
+    {
+        _id: "4",
+        title: "Red Store Sport Lite",
+        brand: "Red Store",
+        price: 129.00,
+        imageProd: "https://res.cloudinary.com/dvvekltxc/image/upload/v1786646117/Screenshot_2026-08-13_192205_g8qea5.png?v=2",
+        sizes: [41, 42, 43, 44]
+    },
+    {
+        _id: "5",
+        title: "Red Store Street Edition",
+        brand: "Red Store",
+        price: 149.90,
+        imageProd: "https://res.cloudinary.com/dvvekltxc/image/upload/v1786646283/Screenshot_2026-08-13_190106_qozbyf.png?v=2",
+        sizes: [40, 41, 43, 45]
+    },
+    {
+        _id: "6",
+        title: "Red Store Executive Boot",
+        brand: "Red Store",
+        price: 169.00,
+        imageProd: "https://res.cloudinary.com/dvvekltxc/image/upload/v1786646303/Screenshot_2026-08-13_190114_narpnd.png?v=2",
+        sizes: [42, 43, 44, 46]
+    }
 ];
 
 const withStoreBrand = (products) => products.map((p) => ({ ...p, brand: STORE_BRAND }));
+
+// meme logique que NewArrivalsSection/Sale : pointure par defaut pour l'ajout rapide
+// (la premiere en stock, sinon la premiere disponible sur le produit)
+const defaultSizeFor = (product) => {
+    const sizes = product.sizes || [];
+    return (sizes.find((s) => s.stock > 0) || sizes[0])?.size;
+};
 
 const GENDER_LABELS = {
     men: "Men's Shoes",
@@ -37,7 +89,7 @@ const Shop = () => {
     const [maxPrice, setMaxPrice] = useState(200);
     const [addingId, setAddingId] = useState(null);
 
-    const isAuth = useSelector((state) => state.authReducer.isAuth);
+    const wishlistItems = useSelector((state) => state.wishlistReducer.items);
     const dispatch = useDispatch();
 
     const pageTitle = GENDER_LABELS[genderParam] || "Shop";
@@ -90,27 +142,19 @@ const Shop = () => {
         e.preventDefault();
         e.stopPropagation();
 
-        if (!isAuth || !localStorage.getItem("token")) {
-            toast.error("Connectez-vous pour ajouter au panier.");
-            return;
-        }
-
         setAddingId(product._id);
-        try {
-            await axios.post(
-                `${API_URL}/api/cart/add`,
-                { productId: product._id, quantity: 1 },
-                { headers: getAuthHeaders() }
-            );
-            const { data } = await axios.get(`${API_URL}/api/cart`, { headers: getAuthHeaders() });
-            dispatch({ type: SET_CART, payload: data.items || [] });
-            toast.success("Produit ajouté au panier !");
-        } catch (err) {
-            toast.error("Erreur lors de l'ajout au panier");
-            console.error(err.response?.data?.msg || err.message);
-        } finally {
-            setAddingId(null);
-        }
+        const result = await dispatch(addToCart(product, defaultSizeFor(product)));
+        if (result.success) toast.success("Produit ajouté au panier !");
+        else toast.error(result.error || "Erreur lors de l'ajout au panier");
+        setAddingId(null);
+    };
+
+    const handleToggleWishlist = (e, product) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const isWishlisted = wishlistItems.some((p) => p._id === product._id);
+        if (isWishlisted) dispatch(removeFromWishlist(product._id));
+        else dispatch(addToWishlist(product));
     };
 
     return (
@@ -194,10 +238,16 @@ const Shop = () => {
                         <p className="no-products">No products match your criteria.</p>
                     ) : (
                         filteredProducts.map((product, index) => (
-                            <article
+                            <motion.article
                                 key={product._id}
                                 className="product-card"
-                                style={{ "--card-index": index }}
+                                initial={{ opacity: 0, y: 30 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{
+                                    duration: 0.4,
+                                    delay: index * 0.06,
+                                    ease: "easeOut"
+                                }}
                             >
                                 <Link to={`/shop/${product._id}`} className="product-card__link">
                                     <div className="product-image-wrapper">
@@ -208,6 +258,26 @@ const Shop = () => {
                                             loading="lazy"
                                         />
                                         <span className="product-card__badge">New</span>
+                                        <button
+                                            type="button"
+                                            className={`product-card__wishlist-btn${
+                                                wishlistItems.some((p) => p._id === product._id)
+                                                    ? " product-card__wishlist-btn--active"
+                                                    : ""
+                                            }`}
+                                            aria-label={
+                                                wishlistItems.some((p) => p._id === product._id)
+                                                    ? `Remove ${product.title} from wishlist`
+                                                    : `Add ${product.title} to wishlist`
+                                            }
+                                            onClick={(e) => handleToggleWishlist(e, product)}
+                                        >
+                                            <Heart
+                                                size={16}
+                                                strokeWidth={2}
+                                                fill={wishlistItems.some((p) => p._id === product._id) ? "currentColor" : "none"}
+                                            />
+                                        </button>
                                     </div>
                                     <div className="product-info">
                                         <span className="product-brand">{STORE_BRAND}</span>
@@ -236,7 +306,7 @@ const Shop = () => {
                                         />
                                     </svg>
                                 </button>
-                            </article>
+                            </motion.article>
                         ))
                     )}
                 </main>

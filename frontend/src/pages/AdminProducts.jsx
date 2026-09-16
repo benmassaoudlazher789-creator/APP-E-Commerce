@@ -1,44 +1,20 @@
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import toast from "react-hot-toast";
+import { Upload } from "lucide-react";
 import { addProduct } from "../JS/actions/Prod.action";
+import SectionHeading from "../components/SectionHeading";
 import "./AdminProducts.css";
 
 const GENDERS = ["men", "women", "kids"];
+const initialForm = { title: "", description: "", price: "", brand: "", gender: "men", stock: "", sizes: "" };
 
-const initialForm = {
-    title: "",
-    description: "",
-    price: "",
-    brand: "",
-    gender: "men",
-    sizes: "",
-    stock: "",
-};
-
-const AdminProducts = () => {
-    const user = useSelector((state) => state.authReducer.user);
+function AdminProducts() {
     const dispatch = useDispatch();
-
     const [form, setForm] = useState(initialForm);
     const [mainImage, setMainImage] = useState(null);
     const [extraImages, setExtraImages] = useState([]);
-    const [submitting, setSubmitting] = useState(false);
-    const [message, setMessage] = useState(null); // { type: "success" | "error", text }
-
-    if (!user) {
-        return (
-            <div className="admin-products admin-products--locked">
-                <h1>Add a Product</h1>
-                <p className="text-small home__muted">
-                    You need to be logged in to add products.
-                </p>
-                <Link to="/login" className="btn-primary admin-products__login-btn">
-                    Log In
-                </Link>
-            </div>
-        );
-    }
+    const [isSaving, setIsSaving] = useState(false);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -46,184 +22,172 @@ const AdminProducts = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setMessage(null);
-
-        const sizeList = form.sizes
-            .split(",")
-            .map((s) => Number(s.trim()))
-            .filter((s) => Number.isFinite(s) && s > 0);
-
-        if (sizeList.length === 0) {
-            setMessage({ type: "error", text: "Enter at least one valid size (e.g. 38, 39, 40)." });
-            return;
-        }
-        if (!mainImage) {
-            setMessage({ type: "error", text: "A main product image is required." });
-            return;
-        }
-
-        const stock = Number(form.stock) || 0;
-        const sizes = sizeList.map((size) => ({ size, stock }));
+        setIsSaving(true);
 
         const formData = new FormData();
-        formData.append("title", form.title.trim());
-        formData.append("description", form.description.trim());
+        formData.append("title", form.title);
+        formData.append("description", form.description);
         formData.append("price", form.price);
-        formData.append("brand", form.brand.trim());
+        formData.append("brand", form.brand);
         formData.append("gender", form.gender);
-        formData.append("sizes", JSON.stringify(sizes));
-        formData.append("imageProd", mainImage);
+        formData.append(
+            "sizes",
+            JSON.stringify(form.sizes.split(",").map((s) => ({ size: Number(s.trim()), stock: Number(form.stock) })))
+        );
+        if (mainImage) formData.append("imageProd", mainImage);
         extraImages.forEach((file) => formData.append("images", file));
 
-        setSubmitting(true);
         const result = await dispatch(addProduct(formData));
-        setSubmitting(false);
-
+        setIsSaving(false);
         if (result.success) {
-            setMessage({ type: "success", text: `"${result.product.title}" was added successfully.` });
+            toast.success("Product added successfully!");
             setForm(initialForm);
             setMainImage(null);
             setExtraImages([]);
-            e.target.reset();
         } else {
-            setMessage({ type: "error", text: result.error });
+            toast.error(result.error || "Failed to add product");
         }
     };
 
     return (
-        <div className="admin-products">
-            <h1>Add a Product</h1>
-            <p className="text-small home__muted admin-products__intro">
-                Creates a product via the existing <code>POST /api/product/addProd</code> route.
-            </p>
+        <div className="admin-products-page">
+            <div className="admin-products-card">
+                <SectionHeading title="Add a Product" />
+                <p className="admin-products__subtitle">Fill in the details below to list a new product</p>
 
-            <form className="admin-products__form" onSubmit={handleSubmit}>
-                <label className="admin-products__field">
-                    <span>Product name</span>
-                    <input
-                        className="form-input"
-                        type="text"
-                        name="title"
-                        value={form.title}
-                        onChange={handleChange}
-                        required
-                    />
-                </label>
-
-                <label className="admin-products__field">
-                    <span>Description</span>
-                    <textarea
-                        className="form-input"
-                        name="description"
-                        rows={4}
-                        value={form.description}
-                        onChange={handleChange}
-                        required
-                    />
-                </label>
-
-                <div className="admin-products__row">
+                <form onSubmit={handleSubmit} className="admin-products__form">
                     <label className="admin-products__field">
-                        <span>Price ($)</span>
+                        <span>
+                            Product Name <span className="admin-products__required">*</span>
+                        </span>
                         <input
-                            className="form-input"
-                            type="number"
-                            name="price"
-                            min="0"
-                            step="0.01"
-                            value={form.price}
-                            onChange={handleChange}
-                            required
-                        />
-                    </label>
-
-                    <label className="admin-products__field">
-                        <span>Brand</span>
-                        <input
-                            className="form-input"
                             type="text"
-                            name="brand"
-                            value={form.brand}
-                            onChange={handleChange}
-                        />
-                    </label>
-                </div>
-
-                <div className="admin-products__row">
-                    <label className="admin-products__field">
-                        <span>Category</span>
-                        <select className="form-input" name="gender" value={form.gender} onChange={handleChange}>
-                            {GENDERS.map((g) => (
-                                <option key={g} value={g}>
-                                    {g.charAt(0).toUpperCase() + g.slice(1)}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-
-                    <label className="admin-products__field">
-                        <span>Stock quantity (per size)</span>
-                        <input
-                            className="form-input"
-                            type="number"
-                            name="stock"
-                            min="0"
-                            value={form.stock}
+                            name="title"
+                            value={form.title}
                             onChange={handleChange}
                             required
+                            className="form-input"
                         />
                     </label>
-                </div>
 
-                <label className="admin-products__field">
-                    <span>Available sizes (comma-separated)</span>
-                    <input
-                        className="form-input"
-                        type="text"
-                        name="sizes"
-                        placeholder="38, 39, 40, 41, 42"
-                        value={form.sizes}
-                        onChange={handleChange}
-                        required
-                    />
-                </label>
-
-                <div className="admin-products__row">
                     <label className="admin-products__field">
-                        <span>Main image</span>
-                        <input
-                            className="form-input"
-                            type="file"
-                            accept="image/jpeg,image/png"
-                            onChange={(e) => setMainImage(e.target.files[0] || null)}
+                        <span>
+                            Description <span className="admin-products__required">*</span>
+                        </span>
+                        <textarea
+                            name="description"
+                            value={form.description}
+                            onChange={handleChange}
                             required
+                            rows={4}
+                            className="form-input"
                         />
                     </label>
+
+                    <div className="admin-products__row">
+                        <label className="admin-products__field">
+                            <span>
+                                Price ($) <span className="admin-products__required">*</span>
+                            </span>
+                            <input
+                                type="number"
+                                name="price"
+                                value={form.price}
+                                onChange={handleChange}
+                                required
+                                min="0"
+                                step="0.01"
+                                className="form-input"
+                            />
+                        </label>
+                        <label className="admin-products__field">
+                            <span>Brand</span>
+                            <input type="text" name="brand" value={form.brand} onChange={handleChange} className="form-input" />
+                        </label>
+                    </div>
+
+                    <div className="admin-products__row">
+                        <label className="admin-products__field">
+                            <span>Category</span>
+                            <select name="gender" value={form.gender} onChange={handleChange} className="form-input">
+                                {GENDERS.map((g) => (
+                                    <option key={g} value={g}>
+                                        {g.charAt(0).toUpperCase() + g.slice(1)}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                        <label className="admin-products__field">
+                            <span>
+                                Stock <span className="admin-products__required">*</span>
+                            </span>
+                            <input
+                                type="number"
+                                name="stock"
+                                value={form.stock}
+                                onChange={handleChange}
+                                required
+                                min="0"
+                                className="form-input"
+                            />
+                        </label>
+                    </div>
 
                     <label className="admin-products__field">
-                        <span>Additional images (up to 4)</span>
+                        <span>
+                            Sizes (comma-separated) <span className="admin-products__required">*</span>
+                        </span>
                         <input
+                            type="text"
+                            name="sizes"
+                            value={form.sizes}
+                            onChange={handleChange}
+                            required
+                            placeholder="38, 39, 40, 41"
                             className="form-input"
-                            type="file"
-                            accept="image/jpeg,image/png"
-                            multiple
-                            onChange={(e) => setExtraImages([...e.target.files].slice(0, 4))}
                         />
                     </label>
-                </div>
 
-                {message && (
-                    <p className={`form-message form-message--${message.type}`}>
-                        {message.text}
-                    </p>
-                )}
+                    <div className="admin-products__field">
+                        <span>Main Image</span>
+                        <label className="admin-products__file">
+                            <Upload size={18} strokeWidth={2} />
+                            <span>{mainImage ? mainImage.name : "Choose Image"}</span>
+                            <input
+                                type="file"
+                                accept=".jpg,.jpeg,.png"
+                                className="admin-products__file-input"
+                                onChange={(e) => setMainImage(e.target.files[0] || null)}
+                            />
+                        </label>
+                    </div>
 
-                <button type="submit" className="btn-primary" disabled={submitting}>
-                    {submitting ? "Adding…" : "Add Product"}
-                </button>
-            </form>
+                    <div className="admin-products__field">
+                        <span>Additional Images</span>
+                        <label className="admin-products__file">
+                            <Upload size={18} strokeWidth={2} />
+                            <span>
+                                {extraImages.length > 0
+                                    ? `${extraImages.length} image${extraImages.length > 1 ? "s" : ""} selected`
+                                    : "Choose Images"}
+                            </span>
+                            <input
+                                type="file"
+                                accept=".jpg,.jpeg,.png"
+                                multiple
+                                className="admin-products__file-input"
+                                onChange={(e) => setExtraImages([...e.target.files])}
+                            />
+                        </label>
+                    </div>
+
+                    <button type="submit" disabled={isSaving} className="btn-primary admin-products__submit">
+                        {isSaving ? "Adding..." : "Add Product"}
+                    </button>
+                </form>
+            </div>
         </div>
     );
-};
+}
 
 export default AdminProducts;

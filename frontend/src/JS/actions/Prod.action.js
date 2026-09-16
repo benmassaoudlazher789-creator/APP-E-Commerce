@@ -8,6 +8,12 @@ import {
     EDIT_PRODUCT,
     DELETE_PRODUCT,
     FAIL_PROD,
+    LOAD_NEW_ARRIVALS,
+    GET_NEW_ARRIVALS,
+    FAIL_NEW_ARRIVALS,
+    LOAD_SALE_PRODUCTS,
+    GET_SALE_PRODUCTS,
+    FAIL_SALE_PRODUCTS,
 } from "../actionsType/Prod.actionType";
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:1980';
@@ -44,6 +50,33 @@ export const searchProducts = (q) => async (dispatch) => {
         dispatch({ type: GET_PRODUCTS, payload: data.Prod });
     } catch (error) {
         dispatch({ type: FAIL_PROD, payload: error.response?.data?.msg });
+        console.error("Erreur:", error.response?.data || error.message);
+    }
+};
+
+// GET NEW ARRIVALS (page d'accueil) - produits les plus recents, en nombre limite.
+// Etat dedie (voir Prod.actionType.js) pour ne pas ecraser `products`, deja utilise
+// par ProductDetail pour les "related products".
+export const getNewArrivals = (limit = 8) => async (dispatch) => {
+    dispatch({ type: LOAD_NEW_ARRIVALS });
+    try {
+        const { data } = await axios.get(`${API_URL}/allProd`, { params: { sort: "newest", limit } });
+        dispatch({ type: GET_NEW_ARRIVALS, payload: data.Prod });
+    } catch (error) {
+        dispatch({ type: FAIL_NEW_ARRIVALS, payload: error.response?.data?.msg });
+        console.error("Erreur:", error.response?.data || error.message);
+    }
+};
+
+// GET SALE PRODUCTS (page /sale) - produits avec isOnSale: true. Etat dedie
+// (voir Prod.actionType.js), meme raisonnement que getNewArrivals.
+export const getSaleProducts = () => async (dispatch) => {
+    dispatch({ type: LOAD_SALE_PRODUCTS });
+    try {
+        const { data } = await axios.get(`${API_URL}/allProd`, { params: { onSale: true } });
+        dispatch({ type: GET_SALE_PRODUCTS, payload: data.Prod });
+    } catch (error) {
+        dispatch({ type: FAIL_SALE_PRODUCTS, payload: error.response?.data?.msg });
         console.error("Erreur:", error.response?.data || error.message);
     }
 };

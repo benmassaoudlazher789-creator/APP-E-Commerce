@@ -7,8 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { placeOrder } from "../JS/actions/order.action";
-import { clearCart } from "../JS/actions/cart.action";
-import { SET_CART } from "../JS/actionsType/cart.actionType";
+import { getCart, clearCart } from "../JS/actions/cart.action";
 import {
     TAX_RATE,
     SHIPPING_COST,
@@ -79,6 +78,12 @@ function CheckoutContent() {
     const [cardError, setCardError] = useState(null);
     const [cardComplete, setCardComplete] = useState(false);
 
+    // ✅ FONCTION DE GESTION D'ERREUR CENTRALISÉE
+    const handleStripeError = (message) => {
+        toast.error(message);
+        setPlaceError(message);
+    };
+
     // Stripe prêt quand useStripe + useElements sont disponibles
     useEffect(() => {
         if (!stripePromise) {
@@ -110,33 +115,27 @@ function CheckoutContent() {
             return;
         }
 
-        try {
-            setLoadingCart(true);
-            setError(null);
+        setLoadingCart(true);
+        setError(null);
 
-            const { data } = await axios.get(`${API_URL}/api/cart`, {
-                headers: getAuthHeaders(),
-            });
-
-            const cartItems = data.items || [];
+        const result = await dispatch(getCart());
+        if (result.success) {
+            const cartItems = result.items;
             if (cartItems.length === 0) {
                 navigate("/cart");
+                setLoadingCart(false);
                 return;
             }
-
             setItems(cartItems);
-            dispatch({ type: SET_CART, payload: cartItems });
-        } catch (err) {
-            console.error(err.response?.data?.msg || err.message);
+        } else {
             const fallback = reduxItemsRef.current;
             if (fallback.length > 0) {
                 setItems(fallback);
             } else {
-                setError("Unable to load your cart. Please try again.");
+                setError(result.error || "Unable to load your cart. Please try again.");
             }
-        } finally {
-            setLoadingCart(false);
         }
+        setLoadingCart(false);
     }, [dispatch, navigate]);
 
     useEffect(() => {
@@ -158,26 +157,23 @@ function CheckoutContent() {
 
     const handlePay = async () => {
         if (loadingStripe || !stripeReady || !stripe || !elements) {
-            toast.error("Stripe is still loading. Please wait.");
+            handleStripeError("Stripe is still loading. Please wait.");
             return;
         }
 
         const cardElement = elements.getElement(CardElement);
         if (!cardElement) {
-            toast.error("Erreur de paiement");
-            setPlaceError("Go back to the payment step and enter your card.");
+            handleStripeError("Go back to the payment step and enter your card.");
             return;
         }
 
         if (cardError) {
-            toast.error("Erreur de paiement");
-            setPlaceError(cardError);
+            handleStripeError(cardError);
             return;
         }
 
         if (total <= 0) {
-            toast.error("Erreur de paiement");
-            setPlaceError("Cart total is invalid.");
+            handleStripeError("Cart total is invalid.");
             return;
         }
 
@@ -201,8 +197,7 @@ function CheckoutContent() {
             );
 
             if (stripeError || paymentIntent?.status !== "succeeded") {
-                setPlaceError(stripeError?.message || "Payment was not completed.");
-                toast.error("Erreur de paiement");
+                handleStripeError(stripeError?.message || "Payment was not completed.");
                 return;
             }
 
@@ -230,24 +225,16 @@ function CheckoutContent() {
             );
 
             if (!orderResult.success) {
-                setPlaceError(orderResult.error || "Failed to place order.");
-                toast.error("Erreur de paiement");
+                handleStripeError(orderResult.error || "Failed to place order.");
                 return;
             }
 
-            try {
-                await axios.delete(`${API_URL}/api/cart`, { headers: getAuthHeaders() });
-            } catch (err) {
-                console.error(err.response?.data?.msg || err.message);
-            }
-
-            dispatch(clearCart());
+            await dispatch(clearCart());
             toast.success("Paiement réussi !");
             navigate(`/order-confirmation/${orderResult.order.orderNumber}`);
         } catch (err) {
             console.error(err.response?.data?.msg || err.message);
-            setPlaceError(err.response?.data?.msg || err.message || "Payment failed.");
-            toast.error("Erreur de paiement");
+            handleStripeError(err.response?.data?.msg || err.message || "Payment failed.");
         } finally {
             setIsPlacing(false);
         }
