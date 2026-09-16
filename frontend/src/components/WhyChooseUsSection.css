@@ -1,0 +1,61 @@
+/* --- Why Choose Us (section complete) --- */
+.about-features-section {
+    padding-bottom: var(--space-8);
+}
+
+.about-features__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+    .about-features__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .about-features__grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.about-feature-card {
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: var(--space-3);
+    transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.about-feature-card:hover {
+    border-color: rgba(230, 57, 70, 0.25);
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-4px);
+}
+
+.about-feature-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(230, 57, 70, 0.1);
+    color: var(--color-primary);
+    margin-bottom: var(--space-2);
+}
+
+.about-feature-card__title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: var(--space-1);
+}
+
+.about-feature-card__description {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 0;
+}

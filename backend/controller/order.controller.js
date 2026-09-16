@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const Order = require("../model/Order");
 const Product = require("../model/Product");
 const PaymentIntent = require("../model/PaymentIntent");
+const { getStripe } = require("../util/stripe");
 
 // meme regles de calcul que frontend/src/JS/selectors/cart.selectors.js : dupliquees ici
 // volontairement car backend/ et frontend/ sont deux projets npm independants (voir CLAUDE.md)
@@ -60,12 +61,33 @@ exports.createOrder = async (req, res) => {
         if (!transactionId) {
             return res.status(400).json({ msg: "Missing payment confirmation" });
         }
-        const intent = await PaymentIntent.findOne({ transactionId });
-        if (!intent || intent.status !== "approved") {
-            return res.status(400).json({ msg: "Payment could not be verified" });
-        }
-        if (Math.abs(intent.amount - total) > 0.01) {
-            return res.status(400).json({ msg: "Payment amount does not match order total" });
+
+        const stripe = getStripe();
+        if (stripe && transactionId.startsWith("pi_")) {
+            const stripeIntent = await stripe.paymentIntents.retrieve(transactionId);
+            if (stripeIntent.status !== "succeeded") {
+                return res.status(400).json({ msg: "Payment could not be verified" });
+            }
+            if (Math.abs(stripeIntent.amount / 100 - total) > 0.01) {
+                return res.status(400).json({ msg: "Payment amount does not match order total" });
+            }
+
+            const intent = await PaymentIntent.findOne({ transactionId });
+            if (!intent || intent.status === "consumed") {
+                return res.status(400).json({ msg: "Payment could not be verified" });
+            }
+            intent.status = "consumed";
+            await intent.save();
+        } else {
+            const intent = await PaymentIntent.findOne({ transactionId });
+            if (!intent || intent.status !== "approved") {
+                return res.status(400).json({ msg: "Payment could not be verified" });
+            }
+            if (Math.abs(intent.amount - total) > 0.01) {
+                return res.status(400).json({ msg: "Payment amount does not match order total" });
+            }
+            intent.status = "consumed";
+            await intent.save();
         }
 
         //decremente le stock de chaque pointure commandee, en parallele, avec verification
@@ -97,9 +119,6 @@ exports.createOrder = async (req, res) => {
                 msg: `Insufficient stock for ${orderItems[failedIndex].title} (size ${orderItems[failedIndex].size})`,
             });
         }
-
-        intent.status = "consumed";
-        await intent.save();
 
         const newOrder = new Order({
             orderNumber: generateOrderNumber(),

@@ -1,43 +1,29 @@
-.admin-products {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: var(--space-6) var(--space-3) var(--space-12);
-}
-
-.admin-products h1 {
-    margin-bottom: var(--space-1);
-}
-
-.admin-products__intro {
-    margin-bottom: var(--space-4);
-}
-
-.admin-products__intro code {
+.admin-products-page {
+    min-height: calc(100svh - 76px);
     background: var(--color-surface);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 13px;
+    padding: var(--space-6) var(--space-2);
 }
 
-.admin-products--locked {
-    text-align: center;
-    padding-top: var(--space-12);
+.admin-products-card {
+    max-width: 760px;
+    margin: 0 auto;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+    padding: 40px;
 }
 
-.admin-products__login-btn {
-    display: inline-block;
-    margin-top: var(--space-3);
-    text-decoration: none;
+.admin-products__subtitle {
+    margin: calc(-1 * var(--space-2)) 0 var(--space-4);
+    color: var(--color-text-secondary);
+    font-size: 1.05rem;
 }
 
 .admin-products__form {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 12px;
-    padding: var(--space-4);
 }
 
 .admin-products__row {
@@ -55,11 +41,70 @@
     color: var(--color-text);
 }
 
-.admin-products__field textarea {
+.admin-products__field textarea.form-input {
     resize: vertical;
+    font-family: inherit;
+}
+
+.admin-products__required {
+    color: var(--color-error);
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+/* --- bouton fichier custom, remplace le style natif de <input type="file"> --- */
+
+.admin-products__file {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1.5px dashed var(--color-border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: border-color var(--transition), color var(--transition), background-color var(--transition);
+}
+
+.admin-products__file:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: rgba(230, 57, 70, 0.03);
+}
+
+.admin-products__file:has(input:focus-visible) {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* input reel garde accessible (focus clavier, lecteur d'ecran) mais visuellement masque :
+   pas de display:none, qui le sortirait du flux de tabulation */
+.admin-products__file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.admin-products__submit {
+    margin-top: 28px;
+    width: 100%;
 }
 
 @media (max-width: 560px) {
+    .admin-products-card {
+        padding: var(--space-3) var(--space-2);
+    }
+
     .admin-products__row {
         grid-template-columns: 1fr;
     }

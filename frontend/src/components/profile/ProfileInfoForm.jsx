@@ -5,14 +5,16 @@ import { FIELD_INPUT_CLASS, messageClass } from "./shared";
 
 function ProfileInfoForm({ user }) {
     const dispatch = useDispatch();
-    const [form, setForm] = useState({
-        name: user.name || "",
-        email: user.email || "",
-        phone: user.phone || "",
-        password: "",
-    });
+    const initialForm = { name: user.name || "", email: user.email || "", phone: user.phone || "", password: "" };
+    const [form, setForm] = useState(initialForm);
     const [isSaving, setIsSaving] = useState(false);
     const [feedback, setFeedback] = useState(null);
+
+    const isDirty =
+        form.name !== initialForm.name ||
+        form.email !== initialForm.email ||
+        form.phone !== initialForm.phone ||
+        form.password !== "";
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -33,7 +35,7 @@ function ProfileInfoForm({ user }) {
         const result = await dispatch(updateProfile(updates));
         setIsSaving(false);
         if (result.success) {
-            setFeedback({ type: "success", message: "Profil mis à jour avec succès." });
+            setFeedback({ type: "success", message: "Profile updated successfully." });
             setForm((f) => ({ ...f, password: "" }));
         } else {
             setFeedback({ type: "error", message: result.error });
@@ -41,11 +43,9 @@ function ProfileInfoForm({ user }) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex max-w-md flex-col gap-4">
-            <h2 className="text-lg font-bold text-neutral-900">Mes informations</h2>
-
-            <label className="flex flex-col gap-1 text-sm font-semibold text-neutral-700">
-                Nom
+        <form onSubmit={handleSubmit} className="profile-form" noValidate>
+            <label className="profile-field">
+                Full Name
                 <input
                     type="text"
                     name="name"
@@ -56,8 +56,8 @@ function ProfileInfoForm({ user }) {
                 />
             </label>
 
-            <label className="flex flex-col gap-1 text-sm font-semibold text-neutral-700">
-                Email
+            <label className="profile-field">
+                Email Address
                 <input
                     type="email"
                     name="email"
@@ -68,20 +68,22 @@ function ProfileInfoForm({ user }) {
                 />
             </label>
 
-            <label className="flex flex-col gap-1 text-sm font-semibold text-neutral-700">
-                Téléphone
+            <label className="profile-field">
+                <span>
+                    Phone Number <span className="profile-field__optional">(optional)</span>
+                </span>
                 <input
                     type="tel"
                     name="phone"
                     value={form.phone}
                     onChange={handleChange}
-                    placeholder="Optionnel"
+                    placeholder="Add a phone number"
                     className={FIELD_INPUT_CLASS}
                 />
             </label>
 
-            <label className="flex flex-col gap-1 text-sm font-semibold text-neutral-700">
-                Nouveau mot de passe
+            <label className="profile-field">
+                New Password
                 <input
                     type="password"
                     name="password"
@@ -89,7 +91,7 @@ function ProfileInfoForm({ user }) {
                     onChange={handleChange}
                     minLength={6}
                     maxLength={32}
-                    placeholder="Laisser vide pour ne pas changer"
+                    placeholder="Leave blank to keep your current password"
                     className={FIELD_INPUT_CLASS}
                 />
             </label>
@@ -102,10 +104,10 @@ function ProfileInfoForm({ user }) {
 
             <button
                 type="submit"
-                disabled={isSaving}
-                className="mt-2 rounded-lg bg-[#e63946] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#c1121f] disabled:opacity-50"
+                disabled={!isDirty || isSaving}
+                className="btn-primary profile-form__submit"
             >
-                {isSaving ? "Enregistrement..." : "Enregistrer"}
+                {isSaving ? "Saving..." : "Save Changes"}
             </button>
         </form>
     );

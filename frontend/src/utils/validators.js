@@ -9,6 +9,36 @@ export const validateShipping = (data) => {
     return errors;
 };
 
+export const validateRegister = (data) => {
+    const errors = {};
+    if (!data.name?.trim()) errors.name = "Full name is required";
+    if (!data.email?.trim()) errors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) errors.email = "Enter a valid email";
+    if (!data.password) errors.password = "Password is required";
+    else if (data.password.length < 6 || data.password.length > 32)
+        errors.password = "Password must be between 6 and 32 characters";
+    return errors;
+};
+
+export const validateLogin = (data) => {
+    const errors = {};
+    if (!data.email?.trim()) errors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) errors.email = "Enter a valid email";
+    if (!data.password) errors.password = "Password is required";
+    return errors;
+};
+
+export const validateContact = (data) => {
+    const errors = {};
+    if (!data.name?.trim()) errors.name = "Name is required";
+    if (!data.email?.trim()) errors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) errors.email = "Enter a valid email";
+    if (!data.subject?.trim()) errors.subject = "Subject is required";
+    if (!data.message?.trim()) errors.message = "Message is required";
+    else if (data.message.trim().length < 10) errors.message = "Message should be at least 10 characters";
+    return errors;
+};
+
 export const validateCard = (data) => {
     const errors = {};
     const digits = data.cardNumber?.replace(/\s/g, "") || "";

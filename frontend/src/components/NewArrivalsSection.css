@@ -1,0 +1,293 @@
+.new-arrivals {
+    background: var(--color-surface);
+    padding: var(--space-6) 0 var(--space-8);
+}
+
+.new-arrivals__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    /* espace le dernier rang de cards du bloc suivant (Testimonials), qui n'a
+       pas son propre padding-top */
+    margin-bottom: var(--space-6);
+}
+
+@media (min-width: 640px) {
+    .new-arrivals__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .new-arrivals__grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.new-arrival-card {
+    display: flex;
+    flex-direction: column;
+    /* min-width:0 : sans ca, un item de grille refuse de descendre sous la largeur
+       intrinseque de son contenu (min-width:auto par defaut), ce qui casse la
+       troncature ellipsis du titre et peut deregler l'alignement de la grille */
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: var(--space-3);
+    transition: border-color 300ms ease;
+}
+
+.new-arrival-card:hover {
+    border-color: rgba(230, 57, 70, 0.25);
+}
+
+.new-arrival-card:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+}
+
+.new-arrival-card__image-wrapper {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    flex-shrink: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: linear-gradient(160deg, var(--color-surface), var(--color-border));
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--space-3);
+}
+
+/* varie le fond derriere l'image (visible pendant le chargement / sur les PNG
+   transparents) pour casser la repetition du meme degrade gris sur chaque card */
+.new-arrival-card:nth-of-type(4n + 2) .new-arrival-card__image-wrapper {
+    background: linear-gradient(160deg, #fdf2f1, #f2d4d1);
+}
+
+.new-arrival-card:nth-of-type(4n + 3) .new-arrival-card__image-wrapper {
+    background: linear-gradient(160deg, #f2f6f5, #d9e4e1);
+}
+
+.new-arrival-card:nth-of-type(4n + 4) .new-arrival-card__image-wrapper {
+    background: linear-gradient(160deg, #f8f5f0, #e7ddce);
+}
+
+.new-arrival-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 400ms ease;
+}
+
+.new-arrival-card:hover .new-arrival-card__image {
+    transform: scale(1.06);
+}
+
+.new-arrival-card__badge {
+    position: absolute;
+    top: var(--space-2);
+    left: var(--space-2);
+    padding: 3px 8px;
+    border-radius: var(--radius);
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.4;
+    pointer-events: none;
+}
+
+.new-arrival-card__quick-add {
+    position: absolute;
+    right: var(--space-2);
+    bottom: var(--space-2);
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-card);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 250ms ease, transform 250ms ease, background-color 250ms ease, color 250ms ease;
+    cursor: pointer;
+}
+
+.new-arrival-card:hover .new-arrival-card__quick-add,
+.new-arrival-card:focus-within .new-arrival-card__quick-add {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.new-arrival-card__quick-add:hover,
+.new-arrival-card__quick-add:focus-visible {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.new-arrival-card__quick-add:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* coeur wishlist : en haut a droite de l'image, toujours visible (contrairement au
+   quick-add panier qui n'apparait qu'au survol) pour signaler l'etat sauvegarde meme
+   sans interaction */
+.new-arrival-card__wishlist-btn {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    transition: color var(--transition), transform var(--transition);
+}
+
+.new-arrival-card__wishlist-btn:hover {
+    color: var(--color-primary);
+    transform: scale(1.08);
+}
+
+.new-arrival-card__wishlist-btn--active {
+    color: var(--color-primary);
+}
+
+.new-arrival-card__wishlist-btn:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* occupe le reste de la hauteur de la card (etiree par la grille a la hauteur de la
+   rangee la plus haute) pour garder le prix toujours colle en bas, quelle que soit
+   la longueur du titre */
+.new-arrival-card__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    flex: 1;
+}
+
+.new-arrival-card__title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    line-height: 1.3;
+    margin-bottom: 4px;
+    /* coupe proprement apres 2 lignes, sur un espace entre mots (jamais en
+       plein mot) ; min-height reserve la place des 2 lignes pour que les
+       titres courts et longs alignent quand meme le prix en bas de la grille */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(1.3em * 2);
+}
+
+.new-arrival-card__price {
+    display: block;
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    white-space: normal;
+}
+
+.new-arrivals__message {
+    color: var(--color-text-secondary);
+    padding: var(--space-4) 0;
+}
+
+.new-arrivals__view-all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: fit-content;
+    margin: var(--space-4) auto 0;
+    padding: 14px 32px;
+    border: 2px solid #E63946;
+    border-radius: 8px;
+    background: transparent;
+    color: #E63946;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 250ms ease, color 250ms ease, transform 250ms ease;
+}
+
+.new-arrivals__view-all-icon {
+    transition: transform 250ms ease;
+}
+
+.new-arrivals__view-all:hover {
+    background: #E63946;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.new-arrivals__view-all:hover .new-arrivals__view-all-icon {
+    transform: translateX(4px);
+}
+
+.new-arrivals__view-all:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+}
+
+/* --- skeleton (chargement) --- */
+.new-arrival-card--skeleton {
+    border-color: var(--color-border);
+}
+
+.new-arrival-card__image--skeleton {
+    background: var(--color-border);
+    animation: new-arrivals-pulse 1.4s ease-in-out infinite;
+}
+
+.new-arrival-card__line {
+    height: 12px;
+    border-radius: 6px;
+    background: var(--color-border);
+    animation: new-arrivals-pulse 1.4s ease-in-out infinite;
+}
+
+.new-arrival-card__line--title {
+    width: 70%;
+    margin-bottom: var(--space-1);
+}
+
+.new-arrival-card__line--price {
+    width: 35%;
+}
+
+@keyframes new-arrivals-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .new-arrival-card__image,
+    .new-arrival-card__quick-add,
+    .new-arrivals__view-all,
+    .new-arrivals__view-all-icon {
+        transition-duration: 0ms;
+    }
+    .new-arrival-card__image--skeleton,
+    .new-arrival-card__line {
+        animation: none;
+    }
+}

@@ -47,8 +47,10 @@ exports.register = async (req, res) => {
         //response
         res.status(201).json({ message: "User registered successfully",  user: { name, email, imageProfile, cloudinary_id }, token });
     } catch (error) {
-         console.error("ERREUR REGISTER:", error);
-        res.status(500).json({ message: "Server error" }, error);
+        // detail complet cote serveur uniquement : le client garde un message
+        // generique pour ne pas exposer de details internes (schema, driver, etc.)
+        console.error("ERREUR REGISTER:", error);
+        res.status(500).json({ message: "Server error" });
     }
 };
 //login = signin
@@ -81,6 +83,9 @@ exports.login = async (req, res) => {
 
 
     } catch (error) {
+        // detail complet cote serveur uniquement, meme raison qu'au register :
+        // le client garde un message generique pour ne pas exposer de details internes
+        console.error("ERREUR LOGIN:", error);
         res.status(500).json({ message: "Server error" });
     }
 

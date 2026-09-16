@@ -21,8 +21,8 @@ const paymentIntentSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["approved", "consumed"],
-            default: "approved",
+            enum: ["pending", "approved", "consumed"],
+            default: "pending",
         },
     },
     { timestamps: true }

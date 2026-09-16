@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
+import { Form, Input, Button, Card, Alert } from "antd";
+import { MailOutlined } from "@ant-design/icons";
 import { forgotPassword } from "../JS/actions/auth.action";
+import { Link } from "react-router-dom";
 import "./Auth.css";
 
 function ForgotPassword() {
     const [email, setEmail] = useState("");
     const [status, setStatus] = useState({ loading: false, message: null, error: null });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
         setStatus({ loading: true, message: null, error: null });
         const result = await forgotPassword(email.trim());
         setStatus(
@@ -22,46 +21,28 @@ function ForgotPassword() {
 
     return (
         <div className="auth-page">
-            <div className="auth-card">
-                <h2 className="auth-card__title">Forgot Password</h2>
-                <Form onSubmit={handleSubmit}>
-                    <Form.Group className="auth-field" controlId="formForgotEmail">
-                        <Form.Label>Email address</Form.Label>
-                        <Form.Control
-                            type="email"
-                            placeholder="you@example.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                        <Form.Text>We'll send you a link to reset your password.</Form.Text>
-                    </Form.Group>
+            <Card style={{ width: 400, margin: '80px auto', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                <h2 className="auth-card__title" style={{ textAlign: 'center', marginBottom: 24 }}>Forgot Password</h2>
+                
+                {status.error && <Alert message="Erreur" description={status.error} type="error" showIcon style={{ marginBottom: 16 }} />}
+                {status.message && <Alert message="Succès" description={status.message} type="success" showIcon style={{ marginBottom: 16 }} />}
 
-                    {status.error && (
-                        <p className="form-message form-message--error" role="alert">
-                            {status.error}
-                        </p>
-                    )}
-                    {status.message && (
-                        <p className="form-message form-message--success" role="status">
-                            {status.message}
-                        </p>
-                    )}
-
-                    <p className="auth-switch">
-                        Remembered your password? <Link to="/login">Back to login</Link>
-                    </p>
-
-                    <Button
-                        variant="primary"
-                        type="submit"
-                        className="auth-submit"
-                        disabled={!email || status.loading}
-                    >
-                        {status.loading ? "Sending…" : "Send reset link"}
-                    </Button>
+                <Form layout="vertical" onFinish={handleSubmit}>
+                    <Form.Item label="Email address" name="email" rules={[{ required: true, type: 'email', message: 'Veuillez entrer un email valide!' }]}>
+                        <Input prefix={<MailOutlined />} placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} size="large" />
+                    </Form.Item>
+                    
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit" block size="large" style={{ backgroundColor: '#E63946', borderColor: '#E63946' }} loading={status.loading}>
+                            Envoyer le lien
+                        </Button>
+                    </Form.Item>
                 </Form>
-            </div>
+
+                <p className="auth-switch" style={{ textAlign: 'center' }}>
+                    Mot de passe retrouvé ? <Link to="/login">Retour au login</Link>
+                </p>
+            </Card>
         </div>
     );
 }

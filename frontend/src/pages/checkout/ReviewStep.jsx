@@ -1,10 +1,6 @@
 import { motion } from "framer-motion";
 import { formatPrice } from "../../utils/format";
-
-function maskCard(cardNumber) {
-    const digits = cardNumber?.replace(/\s/g, "") || "";
-    return `•••• •••• •••• ${digits.slice(-4)}`;
-}
+import { STORE_BRAND } from "../../utils/brand";
 
 function ReviewStep({
     shippingInfo,
@@ -17,6 +13,8 @@ function ReviewStep({
     onBack,
     onPlaceOrder,
     isPlacing,
+    payDisabled,
+    loadingStripe,
     placeError,
 }) {
     return (
@@ -39,19 +37,16 @@ function ReviewStep({
 
             <div className="review-block">
                 <h4>Payment</h4>
-                <p>
-                    {paymentInfo.method === "card"
-                        ? maskCard(paymentInfo.cardNumber)
-                        : "PayPal"}
-                </p>
+                <p>{paymentInfo.method === "card" ? "Credit / Debit Card (Stripe)" : "PayPal"}</p>
             </div>
 
             <div className="review-block">
                 <h4>Items</h4>
                 {items.map((item) => (
                     <div key={`${item.productId}-${item.size}`} className="review-item">
-                        <span>
-                            {item.title} · Size {item.size} × {item.quantity}
+                        <span className="review-item__detail">
+                            <span className="review-item__brand">{STORE_BRAND}</span>
+                            <span>{item.title} · Size {item.size} × {item.quantity}</span>
                         </span>
                         <span>{formatPrice(item.price * item.quantity)}</span>
                     </div>
@@ -86,12 +81,18 @@ function ReviewStep({
                 <motion.button
                     type="button"
                     className="btn-primary"
-                    whileHover={!isPlacing ? { scale: 1.02 } : {}}
-                    whileTap={!isPlacing ? { scale: 0.98 } : {}}
+                    whileHover={!payDisabled ? { scale: 1.02 } : {}}
+                    whileTap={!payDisabled ? { scale: 0.98 } : {}}
                     onClick={onPlaceOrder}
-                    disabled={isPlacing}
+                    disabled={payDisabled}
                 >
-                    {isPlacing ? "Processing…" : placeError ? "Retry Payment" : "Place Order"}
+                    {loadingStripe
+                        ? "Loading Stripe…"
+                        : isPlacing
+                          ? "Processing…"
+                          : placeError
+                            ? "Retry Payment"
+                            : `Pay ${formatPrice(total)}`}
                 </motion.button>
             </div>
         </motion.div>

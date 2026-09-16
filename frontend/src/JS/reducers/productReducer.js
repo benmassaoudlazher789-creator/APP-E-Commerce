@@ -7,6 +7,12 @@ import {
     EDIT_PRODUCT,
     DELETE_PRODUCT,
     FAIL_PROD,
+    LOAD_NEW_ARRIVALS,
+    GET_NEW_ARRIVALS,
+    FAIL_NEW_ARRIVALS,
+    LOAD_SALE_PRODUCTS,
+    GET_SALE_PRODUCTS,
+    FAIL_SALE_PRODUCTS,
 } from "../actionsType/Prod.actionType";
 
 const initialState = {
@@ -15,6 +21,15 @@ const initialState = {
     product: null,
     myProducts: [],
     errors: null,
+    // etat dedie a la section "New Arrivals" (home page) - separe de `products`
+    // pour ne pas interferer avec les "related products" de ProductDetail
+    isLoadNewArrivals: false,
+    newArrivals: [],
+    newArrivalsErrors: null,
+    // etat dedie a la page "Sale" - meme raisonnement que New Arrivals ci-dessus
+    isLoadSaleProducts: false,
+    saleProducts: [],
+    saleProductsErrors: null,
 };
 
 const productReducer = (state = initialState, { type, payload } = {}) => {
@@ -44,6 +59,18 @@ const productReducer = (state = initialState, { type, payload } = {}) => {
             };
         case FAIL_PROD:
             return { ...state, isLoad: false, errors: payload };
+        case LOAD_NEW_ARRIVALS:
+            return { ...state, isLoadNewArrivals: true };
+        case GET_NEW_ARRIVALS:
+            return { ...state, isLoadNewArrivals: false, newArrivals: payload || [] };
+        case FAIL_NEW_ARRIVALS:
+            return { ...state, isLoadNewArrivals: false, newArrivalsErrors: payload };
+        case LOAD_SALE_PRODUCTS:
+            return { ...state, isLoadSaleProducts: true };
+        case GET_SALE_PRODUCTS:
+            return { ...state, isLoadSaleProducts: false, saleProducts: payload || [] };
+        case FAIL_SALE_PRODUCTS:
+            return { ...state, isLoadSaleProducts: false, saleProductsErrors: payload };
         default:
             return state;
     }

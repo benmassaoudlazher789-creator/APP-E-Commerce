@@ -1,0 +1,488 @@
+/* styles partages entre Profile.jsx et ses sous-composants (header, tabs,
+   formulaire d'infos, commandes, adresses) : un seul fichier car ils ne
+   sont jamais utilises hors de la page profil */
+
+.profile-page {
+    min-height: calc(100svh - 76px);
+    background: var(--color-surface);
+    padding: var(--space-6) var(--space-2);
+}
+
+.profile-card {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+    padding: 40px;
+}
+
+@media (max-width: 640px) {
+    .profile-card {
+        padding: var(--space-3) var(--space-2);
+    }
+}
+
+/* --- HEADER --- */
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-4);
+}
+
+.profile-header__identity {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+}
+
+.profile-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.profile-avatar--photo {
+    object-fit: cover;
+    background: none;
+}
+
+.profile-header__text {
+    min-width: 0;
+}
+
+.profile-header__name {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-header__email {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin: 4px 0 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-logout {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    border: 2px solid var(--color-primary);
+    background: transparent;
+    color: var(--color-primary);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background-color 250ms ease, color 250ms ease, transform 250ms ease;
+}
+
+.profile-logout:hover {
+    background: var(--color-primary);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.profile-logout:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+    .profile-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .profile-logout {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* --- TABS --- */
+
+.profile-tabs {
+    display: flex;
+    gap: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: var(--space-4);
+    overflow-x: auto;
+}
+
+.profile-tab {
+    position: relative;
+    background: none;
+    border: none;
+    font-family: inherit;
+    padding: var(--space-2) var(--space-1);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color var(--transition);
+}
+
+.profile-tab::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 3px;
+    border-radius: 999px 999px 0 0;
+    background: var(--color-primary);
+    transform: scaleX(0);
+    transition: transform var(--transition);
+}
+
+.profile-tab:hover {
+    color: var(--color-text);
+}
+
+.profile-tab--active {
+    color: var(--color-primary);
+}
+
+.profile-tab--active::after {
+    transform: scaleX(1);
+}
+
+.profile-tab:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* --- FORM (My Information) --- */
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: 480px;
+}
+
+.profile-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-text);
+}
+
+.profile-field__optional {
+    font-weight: 400;
+    color: var(--color-text-secondary);
+}
+
+.profile-form__submit {
+    align-self: flex-start;
+    margin-top: var(--space-1);
+}
+
+@media (max-width: 640px) {
+    .profile-form__submit {
+        align-self: stretch;
+    }
+}
+
+/* --- EMPTY STATE (reutilise par Orders et Addresses) --- */
+
+.profile-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-6) 0;
+    text-align: center;
+}
+
+.profile-empty__text {
+    color: var(--color-text-secondary);
+}
+
+/* --- ORDERS --- */
+
+.profile-orders {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.profile-order-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3);
+}
+
+.profile-order-row:not(:last-child) {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.profile-order-row__number {
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0;
+}
+
+.profile-order-row__date {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    margin: 2px 0 0;
+}
+
+.profile-order-row__total {
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0;
+}
+
+.profile-order-row__link {
+    padding: 8px 16px;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.profile-status {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.profile-status--success {
+    background: rgba(42, 157, 143, 0.12);
+    color: var(--color-success);
+}
+
+.profile-status--error {
+    background: rgba(214, 40, 40, 0.1);
+    color: var(--color-error);
+}
+
+@media (max-width: 640px) {
+    .profile-order-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .profile-order-row__link {
+        align-self: stretch;
+        text-align: center;
+    }
+}
+
+.profile-orders__skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.profile-orders__skeleton-row {
+    height: 56px;
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    animation: profile-pulse 1.6s ease-in-out infinite;
+}
+
+/* --- ADDRESSES --- */
+
+.profile-addresses__header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: var(--space-2);
+}
+
+.profile-addresses__add {
+    padding: 10px 20px;
+    font-size: 14px;
+}
+
+.profile-addresses__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.profile-address-card {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+}
+
+.profile-address-card__label {
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0;
+}
+
+.profile-address-card__badge {
+    display: inline-block;
+    margin-left: 8px;
+    background: rgba(230, 57, 70, 0.1);
+    color: var(--color-primary);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+
+.profile-address-card__detail {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin: 4px 0 0;
+}
+
+.profile-address-card__actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.profile-address-card__delete:hover {
+    border-color: var(--color-error);
+    color: var(--color-error);
+}
+
+@media (max-width: 640px) {
+    .profile-address-card {
+        flex-direction: column;
+    }
+
+    .profile-address-card__actions {
+        width: 100%;
+    }
+
+    .profile-address-card__actions .btn-secondary {
+        flex: 1;
+    }
+}
+
+.profile-address-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+}
+
+.profile-address-form__full {
+    grid-column: 1 / -1;
+}
+
+.profile-address-form__actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: var(--space-2);
+}
+
+@media (max-width: 640px) {
+    .profile-address-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- SKELETON (etat de chargement, avant que `current()` resolve) --- */
+
+.profile-skeleton__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.profile-skeleton__avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--color-surface);
+    animation: profile-pulse 1.6s ease-in-out infinite;
+}
+
+.profile-skeleton__lines {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.profile-skeleton__line {
+    height: 14px;
+    border-radius: 999px;
+    background: var(--color-surface);
+    animation: profile-pulse 1.6s ease-in-out infinite;
+}
+
+.profile-skeleton__line--name {
+    width: 160px;
+    height: 20px;
+}
+
+.profile-skeleton__line--email {
+    width: 220px;
+}
+
+.profile-skeleton__tabs {
+    height: 1px;
+    background: var(--color-border);
+    margin-bottom: var(--space-4);
+}
+
+.profile-skeleton__body {
+    height: 220px;
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    animation: profile-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes profile-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .profile-orders__skeleton-row,
+    .profile-skeleton__avatar,
+    .profile-skeleton__line,
+    .profile-skeleton__body {
+        animation: none;
+    }
+}

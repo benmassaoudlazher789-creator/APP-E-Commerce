@@ -1,0 +1,131 @@
+.contact-page {
+    /* degage la navbar fixe, comme .shop-page / .sale-page / .about-page */
+    padding-top: 120px;
+    padding-bottom: var(--space-8);
+}
+
+.contact-hero {
+    padding-bottom: var(--space-5);
+}
+
+.contact-hero__subtitle {
+    max-width: 560px;
+    color: var(--color-text-secondary);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.contact-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+    align-items: start;
+}
+
+@media (min-width: 900px) {
+    .contact-layout {
+        grid-template-columns: 1.3fr 1fr;
+        gap: var(--space-6);
+    }
+}
+
+/* --- formulaire --- */
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: var(--space-4);
+    box-shadow: var(--shadow-card);
+}
+
+.contact-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-text);
+}
+
+.contact-form textarea.form-input {
+    resize: vertical;
+    font-family: inherit;
+}
+
+.contact-form__error {
+    font-weight: 400;
+    font-size: 0.8rem;
+    color: var(--color-error);
+}
+
+.contact-form__submit {
+    align-self: flex-start;
+    margin-top: var(--space-1);
+}
+
+/* --- infos de contact --- */
+.contact-info {
+    background: var(--color-surface);
+    border-radius: 16px;
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.contact-info__heading {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 var(--space-1);
+}
+
+.contact-info__heading--social {
+    margin-top: var(--space-3);
+}
+
+.contact-info__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text);
+    text-decoration: none;
+    padding: 8px 0;
+    transition: color var(--transition);
+}
+
+a.contact-info__row:hover {
+    color: var(--color-primary);
+}
+
+.contact-info__row svg {
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+.contact-info__social {
+    display: flex;
+    gap: 12px;
+}
+
+.contact-info__social a {
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    transition: all var(--transition);
+}
+
+.contact-info__social a:hover {
+    color: #fff;
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}

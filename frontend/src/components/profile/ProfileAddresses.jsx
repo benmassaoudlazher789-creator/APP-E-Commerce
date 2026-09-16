@@ -15,41 +15,33 @@ function AddressForm({ initial, onCancel, onSubmit, isSaving }) {
                 e.preventDefault();
                 onSubmit(form);
             }}
-            className="grid grid-cols-2 gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4 max-lg:grid-cols-1"
+            className="profile-address-form"
         >
             <input
                 name="label"
                 value={form.label}
                 onChange={handleChange}
-                placeholder="Libellé (Domicile, Travail...)"
-                className={`col-span-2 max-lg:col-span-1 ${FIELD_INPUT_CLASS}`}
+                placeholder="Label (Home, Work...)"
+                className={`profile-address-form__full ${FIELD_INPUT_CLASS}`}
             />
-            <input name="fullName" value={form.fullName} onChange={handleChange} placeholder="Nom complet" required className={FIELD_INPUT_CLASS} />
-            <input name="phone" value={form.phone} onChange={handleChange} placeholder="Téléphone" required className={FIELD_INPUT_CLASS} />
+            <input name="fullName" value={form.fullName} onChange={handleChange} placeholder="Full Name" required className={FIELD_INPUT_CLASS} />
+            <input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone Number" required className={FIELD_INPUT_CLASS} />
             <input
                 name="address"
                 value={form.address}
                 onChange={handleChange}
-                placeholder="Adresse"
+                placeholder="Address"
                 required
-                className={`col-span-2 max-lg:col-span-1 ${FIELD_INPUT_CLASS}`}
+                className={`profile-address-form__full ${FIELD_INPUT_CLASS}`}
             />
-            <input name="city" value={form.city} onChange={handleChange} placeholder="Ville" required className={FIELD_INPUT_CLASS} />
-            <input name="postalCode" value={form.postalCode} onChange={handleChange} placeholder="Code postal" required className={FIELD_INPUT_CLASS} />
-            <div className="col-span-2 flex gap-2 max-lg:col-span-1">
-                <button
-                    type="submit"
-                    disabled={isSaving}
-                    className="rounded-lg bg-[#e63946] px-4 py-2 text-sm font-bold text-white hover:bg-[#c1121f] disabled:opacity-50"
-                >
-                    {isSaving ? "Enregistrement..." : "Enregistrer"}
+            <input name="city" value={form.city} onChange={handleChange} placeholder="City" required className={FIELD_INPUT_CLASS} />
+            <input name="postalCode" value={form.postalCode} onChange={handleChange} placeholder="Postal Code" required className={FIELD_INPUT_CLASS} />
+            <div className="profile-address-form__actions">
+                <button type="submit" disabled={isSaving} className="btn-primary profile-addresses__add">
+                    {isSaving ? "Saving..." : "Save"}
                 </button>
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-600 hover:bg-neutral-100"
-                >
-                    Annuler
+                <button type="button" onClick={onCancel} className="btn-secondary">
+                    Cancel
                 </button>
             </div>
         </form>
@@ -88,19 +80,14 @@ function ProfileAddresses({ user }) {
     };
 
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-neutral-900">Mes adresses</h2>
-                {mode !== "add" && (
-                    <button
-                        type="button"
-                        onClick={() => setMode("add")}
-                        className="rounded-lg bg-[#e63946] px-3 py-1.5 text-sm font-bold text-white hover:bg-[#c1121f]"
-                    >
-                        + Ajouter une adresse
+        <div className="profile-addresses">
+            {mode !== "add" && (
+                <div className="profile-addresses__header">
+                    <button type="button" onClick={() => setMode("add")} className="btn-primary profile-addresses__add">
+                        + Add Address
                     </button>
-                )}
-            </div>
+                </div>
+            )}
 
             {error && (
                 <p role="alert" className={messageClass("error")}>
@@ -113,10 +100,12 @@ function ProfileAddresses({ user }) {
             )}
 
             {addresses.length === 0 && mode !== "add" && (
-                <p className="py-6 text-center text-neutral-500">Aucune adresse enregistrée pour le moment.</p>
+                <div className="profile-empty">
+                    <p className="profile-empty__text">No addresses saved yet.</p>
+                </div>
             )}
 
-            <div className="flex flex-col gap-3">
+            <div className="profile-addresses__list">
                 {addresses.map((addr) =>
                     mode === addr._id ? (
                         <AddressForm
@@ -127,40 +116,29 @@ function ProfileAddresses({ user }) {
                             onSubmit={(form) => handleUpdate(addr._id, form)}
                         />
                     ) : (
-                        <div
-                            key={addr._id}
-                            className="flex items-start justify-between gap-4 rounded-lg border border-neutral-200 p-4 max-lg:flex-col"
-                        >
+                        <div key={addr._id} className="profile-address-card">
                             <div>
-                                <p className="font-semibold text-neutral-900">
-                                    {addr.label}{" "}
-                                    {addr.isDefault && (
-                                        <span className="ml-2 rounded-full bg-[#e63946]/10 px-2 py-0.5 text-xs font-semibold text-[#e63946]">
-                                            Par défaut
-                                        </span>
-                                    )}
+                                <p className="profile-address-card__label">
+                                    {addr.label}
+                                    {addr.isDefault && <span className="profile-address-card__badge">Default</span>}
                                 </p>
-                                <p className="text-sm text-neutral-600">
+                                <p className="profile-address-card__detail">
                                     {addr.fullName} — {addr.phone}
                                 </p>
-                                <p className="text-sm text-neutral-600">
+                                <p className="profile-address-card__detail">
                                     {addr.address}, {addr.city} {addr.postalCode}
                                 </p>
                             </div>
-                            <div className="flex gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setMode(addr._id)}
-                                    className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-semibold text-neutral-700 hover:border-[#e63946] hover:text-[#e63946]"
-                                >
-                                    Modifier
+                            <div className="profile-address-card__actions">
+                                <button type="button" onClick={() => setMode(addr._id)} className="btn-secondary">
+                                    Edit
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => handleDelete(addr._id)}
-                                    className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-semibold text-neutral-700 hover:border-[#c1121f] hover:text-[#c1121f]"
+                                    className="btn-secondary profile-address-card__delete"
                                 >
-                                    Supprimer
+                                    Delete
                                 </button>
                             </div>
                         </div>

@@ -1,91 +1,96 @@
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, Link } from 'react-router-dom';
 import { register } from "../JS/actions/auth.action";
-import { useNavigate } from "react-router-dom";
+import { validateRegister } from "../utils/validators";
 import "./Auth.css";
-import "../styles/tailwind-scoped.css";
-import AnimatedInput from "@/components/ui/smoothui/animated-input";
+
+const initialData = { name: "", email: "", password: "" };
 
 function Register() {
-  const [newUser, setNewUser] = useState({
-    name: '',
-    email: '',
-    password: '',
-    imageProfile: ''
+  const [newUser, setNewUser] = useState(initialData);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const isLoad = useSelector((state) => state.authReducer.isLoad);
+  const serverError = useSelector((state) => state.authReducer.errors);
 
-  });
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const errors = useSelector(state => state.authReducer.errors)
   const handleChange = (e) => {
     setNewUser({ ...newUser, [e.target.name]: e.target.value });
-  }
+  };
+
   const handleSubmit = (e) => {
-    e.preventDefault() // empécher le chargement du form
-    const userToRegister = {
+    e.preventDefault();
+    const errors = validateRegister(newUser);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
 
-      name: newUser.name.trim(),
-      email: newUser.email.trim(),
-      password: newUser.password.trim(),
-      imageProfile: newUser.imageProfile.trim()
-    }
-
-    // déclencher l'action
-
-    dispatch(register(userToRegister, navigate));
-    //page profile
-
-
-  }
+    dispatch(
+      register({
+        name: newUser.name.trim(),
+        email: newUser.email.trim(),
+        password: newUser.password,
+      }, navigate)
+    );
+  };
 
   return (
-    <div className="auth-page tw-scope">
+    <div className="auth-page">
       <div className="auth-card">
-        <h2 className="auth-card__title">Register</h2>
-        <Form onSubmit={handleSubmit}>
-          <Form.Group className="auth-field" controlId="formBasicName">
-            <Form.Label>Nom</Form.Label>
-            <Form.Control className="form-input" type="text" placeholder="Entrez votre nom" name="name" onChange={handleChange} value={newUser.name} required />
-          </Form.Group>
+        <h2 className="auth-card__title">Create an account</h2>
 
-          <div className="auth-field">
-            <AnimatedInput
-              label="Adresse email"
-              value={newUser.email}
-              onChange={(val) => setNewUser({ ...newUser, email: val })}
+        {serverError && serverError.length > 0 && (
+          <p className="form-message form-message--error">{serverError}</p>
+        )}
+
+        <form onSubmit={handleSubmit} noValidate>
+          <label className="auth-field">
+            Full Name
+            <input
+              type="text"
+              name="name"
+              className="form-input"
+              placeholder="Your name"
+              value={newUser.name}
+              onChange={handleChange}
             />
-            <Form.Text>
-              Nous ne partagerons jamais votre email avec qui que ce soit.
-            </Form.Text>
-          </div>
+            {fieldErrors.name && <span className="auth-field__error">{fieldErrors.name}</span>}
+          </label>
 
-          <Form.Group className="auth-field" controlId="formBasicPassword">
-            <Form.Label>Mot de passe</Form.Label>
-            <Form.Control className="form-input" type="password" placeholder="Mot de passe" name="password" onChange={handleChange} value={newUser.password} minLength={6} maxLength={32} required />
-            <Form.Text>
-              Entre 6 et 32 caractères.
-            </Form.Text>
-          </Form.Group>
+          <label className="auth-field">
+            Email Address
+            <input
+              type="email"
+              name="email"
+              className="form-input"
+              placeholder="you@example.com"
+              value={newUser.email}
+              onChange={handleChange}
+            />
+            {fieldErrors.email && <span className="auth-field__error">{fieldErrors.email}</span>}
+          </label>
 
-          <Form.Group className="auth-field" controlId="formBasicImage">
-            <Form.Label>Photo de profil (optionnel)</Form.Label>
-            <Form.Control className="form-input" type="url" placeholder="Image Url" name="imageProfile" onChange={handleChange} value={newUser.imageProfile} />
-          </Form.Group>
+          <label className="auth-field">
+            Password
+            <input
+              type="password"
+              name="password"
+              className="form-input"
+              placeholder="At least 6 characters"
+              value={newUser.password}
+              onChange={handleChange}
+            />
+            {fieldErrors.password && <span className="auth-field__error">{fieldErrors.password}</span>}
+          </label>
 
-          {errors && errors.length > 0 && (
-            <p className="form-message form-message--error" role="alert">{errors}</p>
-          )}
+          <button type="submit" className="auth-submit" disabled={isLoad}>
+            {isLoad ? "Creating account..." : "Sign Up"}
+          </button>
+        </form>
 
-          <p className="auth-switch">
-            if you had an account, please login <a href="/login">Login</a>
-          </p>
-
-          <Button variant="primary" type="submit" className="auth-submit">
-            submit
-          </Button>
-        </Form>
+        <p className="auth-switch">
+          Already have an account? <Link to="/login">Log in</Link>
+        </p>
       </div>
     </div>
   );

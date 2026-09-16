@@ -91,7 +91,7 @@ function BarNav() {
         <Navbar
             expand="lg"
             fixed="top"
-            className={`red-navbar ${scrolled ? "red-navbar--scrolled" : ""} ${!isHome ? 'red-navbar--solid' : ''}`}
+            className={`red-navbar ${isHome ? "red-navbar--home" : "red-navbar--solid"} ${scrolled ? "red-navbar--scrolled" : ""}`}
         >
             <Container fluid className="red-navbar__container">
                 <Navbar.Brand as={Link} to="/" className="red-navbar__brand">
@@ -99,8 +99,8 @@ function BarNav() {
                     RED<span>STORE</span>
                 </Navbar.Brand>
                 
-                <Navbar.Toggle aria-controls="main-nav" />
-                <Navbar.Collapse id="main-nav" className="justify-content-between">
+                <Navbar.Toggle aria-controls="main-nav" className="red-navbar__toggle" />
+                <Navbar.Collapse id="main-nav" className="red-navbar__collapse">
                     <Nav className="red-navbar__links">
                         <Nav.Link as={NavLink} to="/" end>
                             Home
@@ -117,15 +117,15 @@ function BarNav() {
                         <Nav.Link as={Link} to="/shop">
                             New Arrivals
                         </Nav.Link>
-                        <Nav.Link as={Link} to="/shop">
+                        <Nav.Link as={Link} to="/sale">
                             Sale
                         </Nav.Link>
-                        <Nav.Link as={Link} to="/">
-                            About
+                        <Nav.Link as={Link} to="/contact">
+                            Contact
                         </Nav.Link>
                     </Nav>
 
-                    <div className="d-flex align-items-center gap-3">
+                    <div className="red-navbar__actions">
                         <form className="red-navbar__search" onSubmit={handleSearch} ref={searchBoxRef}>
                             {searchOpen && (
                                 <motion.input
@@ -215,6 +215,7 @@ function BarNav() {
                                     </NavDropdown.Item>
                                     <NavDropdown.Item
                                         as="button"
+                                        className="red-navbar__account-logout"
                                         onClick={() => dispatch(logout(navigate))}
                                     >
                                         Logout

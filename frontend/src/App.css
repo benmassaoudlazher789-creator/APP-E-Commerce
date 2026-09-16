@@ -8,3 +8,13 @@
   flex: 1;
   padding-top: 76px;
 }
+
+/* Accueil : le hero monte sous la navbar transparente (pas de bande blanche) */
+.App main:has(.home-layout) {
+  padding-top: 0;
+}
+
+.home-layout {
+  position: relative;
+  min-height: 100vh;
+}
