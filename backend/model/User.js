@@ -42,9 +42,12 @@ const userSchema = new mongoose.Schema({
         default: "../images/image.jpg",
     },
      cloudinary_id: String,
-    isAdmin: {
-        type: Boolean,
-        default: false,
+    //role de l'utilisateur : "user" par defaut, "admin" pour acceder au dashboard
+    //(remplace l'ancien champ isAdmin, jamais utilise pour du controle d'acces reel)
+    role: {
+        type: String,
+        enum: ["user", "admin"],
+        default: "user",
     },
     addresses: [addressSchema],
     //produits favoris de l'utilisateur (wishlist)

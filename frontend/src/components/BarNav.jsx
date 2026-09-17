@@ -213,6 +213,11 @@ function BarNav() {
                                     <NavDropdown.Item as={Link} to="/admin/products">
                                         Add Product
                                     </NavDropdown.Item>
+                                    {user.role === "admin" && (
+                                        <NavDropdown.Item as={Link} to="/dashboard/admin">
+                                            Dashboard
+                                        </NavDropdown.Item>
+                                    )}
                                     <NavDropdown.Item
                                         as="button"
                                         className="red-navbar__account-logout"

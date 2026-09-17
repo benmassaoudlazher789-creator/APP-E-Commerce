@@ -34,9 +34,18 @@ const orderSchema = new mongoose.Schema(
         shipping: { type: Number, required: true },
         total: { type: Number, required: true },
         //rattache la commande a l'utilisateur connecte, si present (checkout invite sinon)
+        //ref "User" (majuscule) : doit matcher exactement mongoose.model('User', ...) dans
+        //model/User.js, sinon .populate('createdBy') echoue avec MissingSchemaError
         createdBy: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "user",
+            ref: "User",
+        },
+        //statut de traitement/expedition de la commande (distinct de payment.status, qui ne
+        //suit que le paiement) - modifiable par un admin depuis le dashboard
+        status: {
+            type: String,
+            enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
+            default: "pending",
         },
     },
     { timestamps: true }

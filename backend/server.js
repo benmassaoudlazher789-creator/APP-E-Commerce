@@ -26,6 +26,7 @@ const productRoutes = require("./routes/prod.routes");
 const orderRoutes = require("./routes/order.routes");
 const paymentRoutes = require("./routes/payment.routes");
 const cartRoutes = require("./routes/cart.routes");
+const adminRoutes = require("./routes/admin.routes");
 
 // Application des routes
 app.use("/api/auth", authRoutes);
@@ -33,6 +34,7 @@ app.use("/api/product", productRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/admin", adminRoutes);
 
 const PORT = process.env.PORT;
 

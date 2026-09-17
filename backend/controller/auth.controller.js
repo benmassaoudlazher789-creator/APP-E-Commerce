@@ -12,7 +12,7 @@ const sanitizeUser = (user) => ({
     phone: user.phone,
     imageProfile: user.imageProfile,
     cloudinary_id: user.cloudinary_id,
-    isAdmin: user.isAdmin,
+    role: user.role,
     addresses: user.addresses,
 });
 
@@ -45,7 +45,7 @@ exports.register = async (req, res) => {
         //token = JWT
         const token = jwt.sign({ id: newUser._id }, process.env.SECRET_KEY, { expiresIn: '2h' });
         //response
-        res.status(201).json({ message: "User registered successfully",  user: { name, email, imageProfile, cloudinary_id }, token });
+        res.status(201).json({ message: "User registered successfully",  user: { name, email, imageProfile, cloudinary_id, role: newUser.role }, token });
     } catch (error) {
         // detail complet cote serveur uniquement : le client garde un message
         // generique pour ne pas exposer de details internes (schema, driver, etc.)
@@ -77,7 +77,7 @@ exports.login = async (req, res) => {
         //token JWT
         const token = jwt.sign({ id: foundUser._id }, process.env.SECRET_KEY, { expiresIn: '2h' });
         //response
-        res.status(200).json({ message: "Login successful", user: { name: foundUser.name, email: foundUser.email, imageProfile: foundUser.imageProfile, cloudinary_id: foundUser.cloudinary_id }, token });
+        res.status(200).json({ message: "Login successful", user: { name: foundUser.name, email: foundUser.email, imageProfile: foundUser.imageProfile, cloudinary_id: foundUser.cloudinary_id, role: foundUser.role }, token });
 
 
 

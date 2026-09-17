@@ -58,7 +58,7 @@ router.get("/current", isAuth, (req, res) => {
             email: req.user.email,
             phone: req.user.phone,
             imageProfile: req.user.imageProfile,
-            isAdmin: req.user.isAdmin,
+            role: req.user.role,
             addresses: req.user.addresses,
         },
     });
