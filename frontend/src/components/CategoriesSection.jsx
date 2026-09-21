@@ -17,13 +17,13 @@ const CATEGORIES = [
     {
         name: 'Women',
         description: 'Designed for movement, made to turn heads.',
-        img: 'https://images.unsplash.com/photo-1535043934128-cf0b28d52f95?w=600&auto=format&fit=crop',
+        img: 'https://images.unsplash.com/photo-1524553879936-2ff074ae5816?w=600&auto=format&fit=crop',
         link: '/shop?gender=women',
     },
     {
         name: 'Kids',
         description: 'Durable comfort for every adventure.',
-        img: 'https://images.unsplash.com/photo-1775813282325-7c154e126f73?w=600&auto=format&fit=crop',
+        img: 'https://images.unsplash.com/photo-1552912276-56ef47874741?w=600&auto=format&fit=crop',
         link: '/shop?gender=kids',
     },
 ];

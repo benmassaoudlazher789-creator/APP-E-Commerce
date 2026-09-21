@@ -1,8 +1,41 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import AnimatedLink from "./AnimatedLink";
 import SocialLinks from "./SocialLinks";
 import "./Footer.css";
+
+// icones generiques (pas de logos de marques de paiement) : le nom du moyen de
+// paiement est ecrit en clair a cote d'un pictogramme neutre
+const PAYMENT_METHODS = [
+    {
+        label: "Visa",
+        icon: (
+            <>
+                <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
+                <path d="M2.5 10h19" />
+            </>
+        ),
+    },
+    {
+        label: "Mastercard",
+        icon: (
+            <>
+                <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
+                <rect x="6" y="12.5" width="4" height="3" rx="0.8" />
+                <path d="M14 14h4" />
+            </>
+        ),
+    },
+    {
+        label: "PayPal",
+        icon: (
+            <>
+                <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3" />
+                <rect x="3" y="7.5" width="18" height="12" rx="2.5" />
+                <circle cx="16.5" cy="13.5" r="1.2" />
+            </>
+        ),
+    },
+];
 
 function Footer() {
     const [email, setEmail] = useState("");
@@ -18,28 +51,37 @@ function Footer() {
     return (
         <footer className="red-footer">
             <div className="red-footer__container">
-                <div className="red-footer__col">
+                <div className="red-footer__col red-footer__col--brand">
                     <h3 className="red-footer__brand">
                         RED<span>STORE</span>
                     </h3>
                     <p className="text-small red-footer__muted">
                         Premium sneakers &amp; shoes, delivered to your door.
                     </p>
+                    <SocialLinks className="red-footer__social" />
                 </div>
 
-                <div className="red-footer__col">
+                <nav className="red-footer__col" aria-label="Shop by category">
+                    <h4>Shop by</h4>
+                    <AnimatedLink to="/shop?gender=men">Men</AnimatedLink>
+                    <AnimatedLink to="/shop?gender=women">Women</AnimatedLink>
+                    <AnimatedLink to="/shop?gender=kids">Kids</AnimatedLink>
+                    <AnimatedLink to="/sale">Sale</AnimatedLink>
+                </nav>
+
+                <nav className="red-footer__col" aria-label="Shop">
                     <h4>Shop</h4>
-                    <AnimatedLink href="#">All Shoes</AnimatedLink>
-                    <AnimatedLink href="#">New Arrivals</AnimatedLink>
-                    <AnimatedLink href="#">Cart</AnimatedLink>
-                </div>
+                    <AnimatedLink to="/shop">All Shoes</AnimatedLink>
+                    <AnimatedLink to="/new-arrivals">New Arrivals</AnimatedLink>
+                    <AnimatedLink to="/cart">Cart</AnimatedLink>
+                </nav>
 
-                <div className="red-footer__col">
+                <nav className="red-footer__col" aria-label="Company">
                     <h4>Company</h4>
                     <AnimatedLink to="/about">About Us</AnimatedLink>
                     <AnimatedLink to="/contact">Contact</AnimatedLink>
                     <AnimatedLink href="#">Returns &amp; Shipping</AnimatedLink>
-                </div>
+                </nav>
 
                 <div className="red-footer__col red-footer__newsletter">
                     <h4>Stay in the loop</h4>
@@ -53,6 +95,7 @@ function Footer() {
                             <input
                                 type="email"
                                 required
+                                aria-label="Email address"
                                 placeholder="you@example.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
@@ -60,11 +103,31 @@ function Footer() {
                             <button type="submit">Subscribe</button>
                         </form>
                     )}
-                    <SocialLinks className="red-footer__social" />
                 </div>
             </div>
+
             <div className="red-footer__bottom">
                 <p className="text-small">©2026 RedStore. Tous droits réservés.</p>
+                <ul className="red-footer__payments" aria-label="Accepted payment methods">
+                    {PAYMENT_METHODS.map(({ label, icon }) => (
+                        <li key={label} className="red-footer__payment">
+                            <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.6"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                            >
+                                {icon}
+                            </svg>
+                            <span>{label}</span>
+                        </li>
+                    ))}
+                </ul>
             </div>
         </footer>
     );

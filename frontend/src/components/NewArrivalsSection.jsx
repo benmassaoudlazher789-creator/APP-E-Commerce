@@ -1,28 +1,20 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, useReducedMotion } from 'framer-motion';
-import toast from 'react-hot-toast';
 import { ArrowRight, Heart, ShoppingBag } from 'lucide-react';
 import { getNewArrivals } from '../JS/actions/Prod.action';
-import { addToCart } from '../JS/actions/cart.action';
 import { addToWishlist, removeFromWishlist } from '../JS/actions/wishlist.action';
 import { EASE_SMOOTH, SPRING_BOUNCY } from '../utils/motion';
 import { formatPrice } from '../utils/format';
 import SectionHeading from './SectionHeading';
 import './NewArrivalsSection.css';
 
-// pointure par defaut pour l'ajout rapide : la premiere en stock, sinon la premiere
-// disponible sur le produit (l'utilisateur pourra l'ajuster depuis le panier)
-const defaultSizeFor = (product) => {
-    const sizes = product.sizes || [];
-    return (sizes.find((s) => s.stock > 0) || sizes[0])?.size;
-};
-
 const MotionLink = motion(Link);
 
 export default function NewArrivalsSection() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const shouldReduceMotion = useReducedMotion();
     const { newArrivals, isLoadNewArrivals, newArrivalsErrors } = useSelector(
         (state) => state.productReducer
@@ -47,19 +39,17 @@ export default function NewArrivalsSection() {
         ? {}
         : { y: -6, boxShadow: '0 20px 40px rgba(230, 57, 70, 0.12)' };
 
+    // le bouton panier ne devine plus une pointure : il envoie vers la fiche
+    // produit, ou vit le vrai selecteur de taille (evite le bug "toujours 40")
+    const handleQuickAdd = (event, product) => {
+        event.preventDefault();
+        event.stopPropagation();
+        navigate(`/shop/${product._id}`);
+    };
+
     // empeche la navigation vers la page produit : preventDefault() annule la
     // navigation de react-router (Link ne navigue pas si l'evenement est deja
     // defaultPrevented), stopPropagation() isole le clic du reste de la card
-    const handleQuickAdd = async (event, product) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const size = defaultSizeFor(product);
-        if (size === undefined) return;
-        const result = await dispatch(addToCart(product, size));
-        if (result.success) toast.success(`${product.title} added to cart`);
-        else toast.error(result.error || "Failed to add to cart");
-    };
-
     const handleToggleWishlist = (event, product) => {
         event.preventDefault();
         event.stopPropagation();
@@ -73,7 +63,7 @@ export default function NewArrivalsSection() {
     const showEmpty = !isLoadNewArrivals && !newArrivalsErrors && newArrivals.length === 0;
 
     return (
-        <section className="new-arrivals">
+        <section className="new-arrivals" id="new-arrivals">
             <div className="section">
                 <SectionHeading title="New Arrivals" />
 

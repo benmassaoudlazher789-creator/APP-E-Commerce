@@ -1,28 +1,44 @@
 /* --- Footer Principal --- */
 .red-footer {
-    background: #1D1D1D;
-    /* Fond sombre très élégant */
+    /* tokens locaux : le footer garde son fond sombre, on ne les partage pas avec le theme clair */
+    --footer-bg: #1D1D1D;
+    --footer-surface: #2A2A2A;
+    --footer-line: #333333;
+    /* #6C757D sur #1D1D1D ne fait que ~3.6:1 (sous AA) ; ce gris passe AA (~7:1) */
+    --footer-muted: #A0A7AE;
+
+    position: relative;
+    background: var(--footer-bg);
     color: #F8F9FA;
-    padding: 64px 24px 24px;
-    /* Espacement généreux (32px grid) */
+    padding: var(--space-8) var(--space-3) var(--space-3);
+}
+
+/* filet degrade en haut : separe proprement le footer de la section claire
+   (Testimonials) qui le precede, sans ajouter une bordure pleine largeur */
+.red-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--color-primary) 50%, transparent 100%);
 }
 
 .red-footer__container {
     max-width: 1200px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
-    /* Colonnes déséquilibrées pour un vrai look pro */
-    gap: 32px;
-    /* Espacement de 32px */
+    /* marque et newsletter plus larges que les 3 colonnes de liens */
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1.5fr;
+    gap: var(--space-4);
 }
 
 /* --- Colonnes --- */
 .red-footer__col {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    /* Espacement de 12px */
+    gap: var(--space-2);
 }
 
 /* --- Logo et textes --- */
@@ -34,12 +50,11 @@
 }
 
 .red-footer__brand span {
-    color: #E63946;
-    /* Rouge Red Store */
+    color: var(--color-primary);
 }
 
 .red-footer__muted {
-    color: #6C757D;
+    color: var(--footer-muted);
     margin: 0;
     line-height: 1.6;
 }
@@ -54,118 +69,197 @@
     letter-spacing: 0.05em;
 }
 
-/* --- Liens --- */
-.red-footer__col a {
-    color: #6C757D;
+/* --- Liens (uniquement les liens directs de colonne : les icones sociales
+   ont leur propre style plus bas) --- */
+.red-footer__col > a {
+    color: var(--footer-muted);
     text-decoration: none;
     font-size: 0.9rem;
-    transition: color 0.3s ease;
+    transition: color var(--transition);
 }
 
-.red-footer__col a:hover {
-    color: #E63946;
-    /* Rouge au survol */
+.red-footer__col > a:hover {
+    color: var(--color-primary);
+}
+
+.red-footer a:focus-visible,
+.red-footer button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+    border-radius: 4px;
 }
 
 /* --- Newsletter --- */
 .red-footer__newsletter {
-    gap: 8px;
-    /* Espacement plus serré */
+    gap: var(--space-1);
 }
 
 .red-footer__form {
     display: flex;
-    gap: 8px;
-    margin-top: 8px;
+    gap: var(--space-1);
+    margin-top: var(--space-1);
 }
 
 .red-footer__form input {
     flex: 1;
-    background: #2A2A2A;
-    border: 1px solid #333;
-    border-radius: 8px;
-    padding: 10px 16px;
+    min-width: 0;
+    background: var(--footer-surface);
+    border: 1px solid var(--footer-line);
+    border-radius: var(--radius);
+    padding: 10px var(--space-2);
     color: #FFFFFF;
     font-size: 0.9rem;
     outline: none;
-    transition: border-color 0.3s ease;
+    transition: border-color var(--transition);
 }
 
 .red-footer__form input:focus {
-    border-color: #E63946;
+    border-color: var(--color-primary);
 }
 
 .red-footer__form input::placeholder {
-    color: #6C757D;
+    color: var(--footer-muted);
 }
 
 .red-footer__form button {
-    background: #E63946;
+    background: var(--color-primary);
     color: white;
     border: none;
-    border-radius: 8px;
-    padding: 10px 16px;
+    border-radius: var(--radius);
+    padding: 10px var(--space-2);
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.3s ease, transform 0.3s ease;
+    transition: background var(--transition), transform var(--transition);
 }
 
 .red-footer__form button:hover {
-    background: #C1121F;
+    background: var(--color-primary-dark);
     transform: scale(1.02);
 }
 
 .red-footer__thanks {
     color: #2A9D8F;
-    /* Vert pour le succès */
     font-size: 0.9rem;
     font-weight: 600;
     margin: 0;
 }
 
-/* --- Réseaux sociaux --- */
+/* --- Reseaux sociaux --- */
 .red-footer__social {
     display: flex;
-    gap: 12px;
-    margin-top: 12px;
+    gap: var(--space-1);
+    margin-top: var(--space-1);
 }
 
 .red-footer__social a {
-    color: #6C757D;
+    color: var(--footer-muted);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    border: 1px solid #333;
-    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius);
+    border: 1px solid var(--footer-line);
+    text-decoration: none;
+    transition: color var(--transition), background var(--transition),
+        border-color var(--transition), transform var(--transition);
 }
 
-.red-footer__social a:hover {
+/* :hover ET :focus-visible : le clavier voit le meme retour que la souris */
+.red-footer__social a:hover,
+.red-footer__social a:focus-visible {
     color: #FFFFFF;
-    background: #E63946;
-    border-color: #E63946;
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: translateY(-2px) scale(1.08);
 }
 
-/* --- Bas de page --- */
+.red-footer__social a:active {
+    transform: scale(0.96);
+}
+
+/* --- Bas de page : copyright + moyens de paiement --- */
 .red-footer__bottom {
     max-width: 1200px;
-    margin: 48px auto 0;
-    padding-top: 24px;
-    border-top: 1px solid #333;
-    text-align: center;
+    margin: var(--space-6) auto 0;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--footer-line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
 }
 
 .red-footer__bottom p {
-    color: #6C757D;
+    color: var(--footer-muted);
     margin: 0;
 }
 
-/* --- Responsive (Mobile) --- */
-@media (max-width: 900px) {
+.red-footer__payments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.red-footer__payment {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 10px;
+    color: var(--footer-muted);
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid var(--footer-line);
+    border-radius: var(--radius);
+    background: var(--footer-surface);
+}
+
+/* --- Tablette : marque et newsletter pleine largeur, 3 colonnes de liens --- */
+@media (max-width: 1024px) {
+    .red-footer__container {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-6) var(--space-4);
+    }
+
+    .red-footer__col--brand,
+    .red-footer__newsletter {
+        grid-column: 1 / -1;
+    }
+
+    .red-footer__newsletter {
+        max-width: 480px;
+    }
+}
+
+/* --- Mobile : une seule colonne, espacement genereux --- */
+@media (max-width: 640px) {
+    .red-footer {
+        padding: var(--space-6) var(--space-3) var(--space-3);
+    }
+
     .red-footer__container {
         grid-template-columns: 1fr;
-        gap: 24px;
+        gap: var(--space-6);
+    }
+
+    /* cibles tactiles confortables pour les liens empiles */
+    .red-footer__col > a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 40px;
+    }
+
+    .red-footer__col {
+        gap: var(--space-1);
+    }
+
+    .red-footer__bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-top: var(--space-6);
     }
 }

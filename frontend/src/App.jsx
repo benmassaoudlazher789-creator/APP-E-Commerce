@@ -67,6 +67,15 @@ function App() {
               </PageTransition>
             } />
 
+            <Route path="/new-arrivals" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <Shop newArrivals />
+                </>
+              </PageTransition>
+            } />
+
             <Route path="/sale" element={
               <PageTransition>
                 <>

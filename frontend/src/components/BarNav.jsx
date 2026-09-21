@@ -114,7 +114,7 @@ function BarNav() {
                         <Nav.Link as={Link} to="/shop?gender=kids">
                             Kids
                         </Nav.Link>
-                        <Nav.Link as={Link} to="/shop">
+                        <Nav.Link as={Link} to="/new-arrivals">
                             New Arrivals
                         </Nav.Link>
                         <Nav.Link as={Link} to="/sale">

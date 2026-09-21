@@ -1,6 +1,9 @@
 .new-arrivals {
     background: var(--color-surface);
     padding: var(--space-6) 0 var(--space-8);
+    /* cible de #new-arrivals : la navbar est en position fixed (~85px), sans cette
+       marge le titre de la section passerait sous elle apres le scroll */
+    scroll-margin-top: 80px;
 }
 
 .new-arrivals__grid {

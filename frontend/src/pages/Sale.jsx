@@ -1,32 +1,24 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, useReducedMotion } from 'framer-motion';
-import toast from 'react-hot-toast';
 import { Heart, ShoppingBag } from 'lucide-react';
 import { getSaleProducts } from '../JS/actions/Prod.action';
-import { addToCart } from '../JS/actions/cart.action';
 import { addToWishlist, removeFromWishlist } from '../JS/actions/wishlist.action';
 import { EASE_SMOOTH, SPRING_BOUNCY } from '../utils/motion';
 import { formatPrice } from '../utils/format';
 import SectionHeading from '../components/SectionHeading';
-// reutilise le style des cards (image wrapper, badge, quick-add, skeleton...)
+// reutilise le style des cards (image wrapper, badge, wishlist, skeleton...)
 // deja defini pour "New Arrivals" : Sale.css n'ajoute que ce qui est specifique
 // a cette page (layout, sous-titre, badge de reduction, prix barre).
 import '../components/NewArrivalsSection.css';
 import './Sale.css';
 
-// meme logique que NewArrivalsSection : pointure par defaut pour l'ajout
-// rapide (la premiere en stock, sinon la premiere disponible sur le produit)
-const defaultSizeFor = (product) => {
-    const sizes = product.sizes || [];
-    return (sizes.find((s) => s.stock > 0) || sizes[0])?.size;
-};
-
 const MotionLink = motion(Link);
 
 export default function Sale() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const shouldReduceMotion = useReducedMotion();
     const { saleProducts, isLoadSaleProducts, saleProductsErrors } = useSelector(
         (state) => state.productReducer
@@ -51,14 +43,10 @@ export default function Sale() {
         ? {}
         : { y: -6, boxShadow: '0 20px 40px rgba(230, 57, 70, 0.12)' };
 
-    const handleQuickAdd = async (event, product) => {
+    const handleQuickAdd = (event, product) => {
         event.preventDefault();
         event.stopPropagation();
-        const size = defaultSizeFor(product);
-        if (size === undefined) return;
-        const result = await dispatch(addToCart(product, size));
-        if (result.success) toast.success(`${product.title} added to cart`);
-        else toast.error(result.error || "Failed to add to cart");
+        navigate(`/shop/${product._id}`);
     };
 
     const handleToggleWishlist = (event, product) => {
