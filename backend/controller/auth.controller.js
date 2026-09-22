@@ -36,10 +36,8 @@ exports.register = async (req, res) => {
         }
         //email non trouvée
         //creation selon le modéle
-        //cryptage du mot de passe avec bcrypt
-        const saltRound = 10;
-        let hashedPassword = await bcrypt.hash(password, saltRound);
-        const newUser = new User({ name, email, password: hashedPassword, imageProfile, cloudinary_id });
+        //le hash du mot de passe est fait automatiquement par le hook pre('save') du modele User
+        const newUser = new User({ name, email, password, imageProfile, cloudinary_id });
         //sauvgarde dans le BD 
         await newUser.save();
         //token = JWT
@@ -108,7 +106,7 @@ exports.updateProfile = async (req, res) => {
             if (password.length < 6 || password.length > 32) {
                 return res.status(400).json({ message: "Password must be between 6 and 32 characters" });
             }
-            req.user.password = await bcrypt.hash(password, 10);
+            req.user.password = password; //hashe automatiquement par le hook pre('save') du modele
         }
 
         await req.user.save();
@@ -226,7 +224,7 @@ exports.resetPassword = async (req, res) => {
 
         if (!foundUser) return res.status(400).json({ message: "Invalid or expired reset link" });
 
-        foundUser.password = await bcrypt.hash(password, 10);
+        foundUser.password = password; //hashe automatiquement par le hook pre('save') du modele
         foundUser.resetPasswordToken = undefined;
         foundUser.resetPasswordExpires = undefined;
         await foundUser.save();

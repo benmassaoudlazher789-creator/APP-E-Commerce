@@ -1,6 +1,7 @@
 const express = require("express")
 const { addProduct, getAllProd, searchProd, getOneProd, getMyProd, updateMyProd, deleteProd, generateDescription } = require("../controller/product.controller")
 const isAuth = require("../middlewares/isAuth")
+const isRole = require("../middlewares/isRole")
 const upload = require("../util/multer")
 
 //accepte une image principale (imageProd) et jusqu'a 5 images de galerie (images)
@@ -18,9 +19,9 @@ const router = express.Router()
 //})
 
 //add product
-   router.post ('/addProd', isAuth, productImages, addProduct)
+   router.post ('/addProd', isAuth, isRole("admin"), productImages, addProduct)
    //generer une description produit via l'IA (Claude)
-   router.post('/generate-description', isAuth, generateDescription)
+   router.post('/generate-description', isAuth, isRole("admin"), generateDescription)
    //get all des produits
    router.get ('/allProd' , getAllProd)
    //recherche full-text (titre/description/categorie/marque)
@@ -30,9 +31,9 @@ const router = express.Router()
    //get myProd
 router.get("/myProd", isAuth, getMyProd)
 //update prod
-router.put("/:id", isAuth, productImages, updateMyProd)
+router.put("/:id", isAuth, isRole("admin"), productImages, updateMyProd)
 //delete prod
-router.delete("/:id", isAuth, deleteProd)
+router.delete("/:id", isAuth, isRole("admin"), deleteProd)
 
 
 

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 // adresse de livraison enregistree dans le profil de l'utilisateur
 const addressSchema = new mongoose.Schema({
@@ -42,12 +43,12 @@ const userSchema = new mongoose.Schema({
         default: "../images/image.jpg",
     },
      cloudinary_id: String,
-    //role de l'utilisateur : "user" par defaut, "admin" pour acceder au dashboard
+    //role de l'utilisateur : "client" par defaut, "admin" pour acceder au dashboard
     //(remplace l'ancien champ isAdmin, jamais utilise pour du controle d'acces reel)
     role: {
         type: String,
-        enum: ["user", "admin"],
-        default: "user",
+        enum: ["client", "admin"],
+        default: "client",
     },
     addresses: [addressSchema],
     //produits favoris de l'utilisateur (wishlist)
@@ -57,6 +58,13 @@ const userSchema = new mongoose.Schema({
     resetPasswordToken: { type: String, select: false },
     resetPasswordExpires: { type: Date, select: false },
 }, { timestamps: true });
+
+//hash automatique du mot de passe avant sauvegarde, uniquement s'il a change
+//(evite de re-hasher un hash deja existant a chaque save())
+userSchema.pre('save', async function () {
+    if (!this.isModified('password')) return;
+    this.password = await bcrypt.hash(this.password, 10);
+});
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;

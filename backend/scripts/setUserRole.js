@@ -17,8 +17,8 @@ const setRole = async () => {
         console.error("Usage : node scripts/setUserRole.js you@example.com [role]");
         process.exit(1);
     }
-    if (!["user", "admin"].includes(role)) {
-        console.error(`Role invalide : "${role}" (attendu "user" ou "admin")`);
+    if (!["client", "admin"].includes(role)) {
+        console.error(`Role invalide : "${role}" (attendu "client" ou "admin")`);
         process.exit(1);
     }
 

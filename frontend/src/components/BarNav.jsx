@@ -210,13 +210,15 @@ function BarNav() {
                                     <NavDropdown.Item as={Link} to="/wishlist">
                                         Wishlist
                                     </NavDropdown.Item>
-                                    <NavDropdown.Item as={Link} to="/admin/products">
-                                        Add Product
-                                    </NavDropdown.Item>
                                     {user.role === "admin" && (
-                                        <NavDropdown.Item as={Link} to="/dashboard/admin">
-                                            Dashboard
-                                        </NavDropdown.Item>
+                                        <>
+                                            <NavDropdown.Item as={Link} to="/admin/products">
+                                                Add Product
+                                            </NavDropdown.Item>
+                                            <NavDropdown.Item as={Link} to="/dashboard/admin">
+                                                Dashboard
+                                            </NavDropdown.Item>
+                                        </>
                                     )}
                                     <NavDropdown.Item
                                         as="button"

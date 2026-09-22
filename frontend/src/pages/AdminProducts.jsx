@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Upload } from "lucide-react";
 import { addProduct } from "../JS/actions/Prod.action";
@@ -11,10 +12,27 @@ const initialForm = { title: "", description: "", price: "", brand: "", gender: 
 
 function AdminProducts() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const token = localStorage.getItem("token");
+    const user = useSelector((state) => state.authReducer.user);
     const [form, setForm] = useState(initialForm);
     const [mainImage, setMainImage] = useState(null);
     const [extraImages, setExtraImages] = useState([]);
     const [isSaving, setIsSaving] = useState(false);
+
+    // meme garde que AdminDashboard.jsx : verifie le token en local (synchrone), pas
+    // seulement `user` en Redux, qui reste null le temps que current() (App.jsx) resolve
+    useEffect(() => {
+        if (!token) {
+            navigate("/login", { replace: true });
+            return;
+        }
+        if (user && user.role !== "admin") {
+            navigate("/", { replace: true });
+        }
+    }, [token, user, navigate]);
+
+    if (!token || !user || user.role !== "admin") return null;
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
