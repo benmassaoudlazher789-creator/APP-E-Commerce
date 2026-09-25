@@ -232,4 +232,4 @@ The other files in this folder are one-off data-maintenance scripts (image and c
 **Lazher Ben Massaoud**
 
 - GitHub: [@benmassaoudlazher789-creator](https://github.com/benmassaoudlazher789-creator)
-- LinkedIn: [Lazher Ben Massaoud](https://www.linkedin.com/in/YOUR-LINKEDIN-HANDLE) <!-- TODO: replace with your LinkedIn URL -->
+- LinkedIn: [Lazher Ben Massaoud](https://www.linkedin.com/in/ben-massaoud-lazher/) <!-- TODO: replace with your LinkedIn URL -->
