@@ -220,3 +220,35 @@
         gap: 6px;
     }
 }
+
+/* --- Admin section tabs (AdminNav.jsx) --- */
+
+.admin-nav {
+    display: flex;
+    gap: var(--space-1);
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: var(--space-4);
+}
+
+.admin-nav__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    margin-bottom: -1px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color var(--transition), border-color var(--transition);
+}
+
+.admin-nav__tab:hover {
+    color: var(--color-text);
+}
+
+.admin-nav__tab--active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+}

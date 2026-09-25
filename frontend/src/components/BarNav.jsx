@@ -52,13 +52,21 @@ function BarNav() {
     useEffect(() => {
         const q = query.trim();
         if (!q) return;
+        // annule aussi la requete deja partie : sinon une reponse lente pour "l" peut
+        // arriver apres celle de "le" et ecraser les bonnes suggestions
+        const controller = new AbortController();
         const timer = setTimeout(() => {
             axios
-                .get(`${API_URL}/api/product/search`, { params: { q } })
+                .get(`${API_URL}/api/product/search`, { params: { q }, signal: controller.signal })
                 .then(({ data }) => setRawSuggestions((data.Prod || []).slice(0, 5)))
-                .catch(() => setRawSuggestions([]));
+                .catch((err) => {
+                    if (!axios.isCancel(err)) setRawSuggestions([]);
+                });
         }, 300);
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
     }, [query]);
 
     useEffect(() => {
@@ -173,10 +181,10 @@ function BarNav() {
                                 )}
                             </AnimatePresence>
                             <button
-                                type={searchOpen ? "submit" : "button"}
+                                type="button"
                                 className="red-navbar__icon-btn"
                                 aria-label="Search"
-                                onClick={() => !searchOpen && setSearchOpen(true)}
+                                onClick={() => setSearchOpen((open) => !open)}
                             >
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                                     <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.8" />

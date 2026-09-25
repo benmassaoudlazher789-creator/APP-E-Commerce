@@ -7,16 +7,22 @@ const Product = require("../model/Product");
 exports.getCart = async (req, res) => {
     try {
         const cart = await Cart.findOne({ user: req.user._id });
-        const items = cart?.items || [];
+        let items = cart?.items || [];
 
         if (items.length > 0) {
             const products = await Product.find({ _id: { $in: items.map((i) => i.productId) } });
             const productsById = new Map(products.map((p) => [p.id, p]));
-            for (const item of items) {
+            //objets simples (toObject) : un champ hors schema (stock, imageFocus) pose sur un
+            //sous-document Mongoose est ignore a la serialisation JSON et n'arrivait jamais au client
+            items = items.map((item) => {
                 const product = productsById.get(String(item.productId));
                 const sizeEntry = product?.sizes.find((s) => s.size === item.size);
-                item.stock = sizeEntry ? sizeEntry.stock : 0;
-            }
+                return {
+                    ...item.toObject(),
+                    stock: sizeEntry ? sizeEntry.stock : 0,
+                    imageFocus: product?.imageFocus,
+                };
+            });
         }
 
         const totalPrice =

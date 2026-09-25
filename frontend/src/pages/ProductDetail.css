@@ -162,8 +162,28 @@
     color: var(--color-text-secondary);
 }
 
+/* meme rythme que les sections de la Home ("Shop by Category") : --space-8 au-dessus,
+   SectionHeading (--space-4 sous le titre) et meme gap que la grille Shop */
 .product-detail__related {
     margin-top: var(--space-8);
+}
+
+.product-detail__related-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+}
+
+@media (max-width: 1024px) {
+    .product-detail__related-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .product-detail__related-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .product-detail__back {

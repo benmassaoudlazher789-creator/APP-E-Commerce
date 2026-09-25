@@ -56,7 +56,7 @@ function Footer() {
                         RED<span>STORE</span>
                     </h3>
                     <p className="text-small red-footer__muted">
-                        Premium sneakers &amp; shoes, delivered to your door.
+                        Premium shoes, delivered to your door.
                     </p>
                     <SocialLinks className="red-footer__social" />
                 </div>

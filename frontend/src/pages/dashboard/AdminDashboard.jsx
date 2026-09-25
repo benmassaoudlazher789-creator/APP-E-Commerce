@@ -5,6 +5,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { ShoppingBag, Package, Users, DollarSign } from "lucide-react";
 import SectionHeading from "../../components/SectionHeading";
+import AdminNav from "./AdminNav";
 import { API_URL, getAuthHeaders } from "../../utils/api";
 import { formatPrice } from "../../utils/format";
 import "./AdminDashboard.css";
@@ -86,6 +87,7 @@ export default function AdminDashboard() {
             <div className="section">
                 <SectionHeading title="Admin Dashboard" />
                 <p className="admin-dashboard__subtitle">Store overview at a glance</p>
+                <AdminNav />
 
                 {error ? (
                     <p className="admin-dashboard__error">{error}</p>

@@ -7,10 +7,15 @@ import { Heart } from "lucide-react";
 import { getAllProducts, getProductById } from "../JS/actions/Prod.action";
 import { addToCart } from "../JS/actions/cart.action";
 import { addToWishlist, removeFromWishlist } from "../JS/actions/wishlist.action";
-import ProductGrid from "../components/ProductGrid";
+import ProductCard from "../components/ProductCard";
+import SectionHeading from "../components/SectionHeading";
 import Reveal from "../components/Reveal";
 import { formatPrice } from "../utils/format";
 import "./ProductDetail.css";
+
+//les 7 tailles qui doivent toujours apparaitre sur CHAQUE page produit, meme si aucun
+//produit de la categorie ne les stocke (affichees desactivees plutot qu'omises)
+const REQUIRED_SIZES = [40, 41, 42, 43, 44, 45, 46];
 
 const ProductDetailView = ({ id }) => {
     const dispatch = useDispatch();
@@ -35,7 +40,19 @@ const ProductDetailView = ({ id }) => {
 
     const gallery = [product.imageProd, ...(product.images || [])].filter(Boolean);
     const sizeInfo = product.sizes || [];
-    const currentStock = sizeInfo.find((s) => s.size === selectedSize)?.stock ?? 0;
+    // taille "maitresse" par categorie (gender) : union des 7 tailles obligatoires (REQUIRED_SIZES)
+    // et de toutes les tailles reellement utilisees par les produits de la meme categorie, pour que
+    // la grille affiche TOUJOURS les 7 tailles requises (desactivees si personne ne les stocke) sans
+    // jamais cacher une taille reellement en stock pour cette categorie (ex: femmes 36-39, enfants 18-35)
+    const sameCategoryProducts = products.length > 0 ? products.filter((p) => p.gender === product.gender) : [product];
+    const categorySizes = [
+        ...new Set([...REQUIRED_SIZES, ...sameCategoryProducts.flatMap((p) => (p.sizes || []).map((s) => s.size))]),
+    ].sort((a, b) => a - b);
+    const allSizes = categorySizes.map((size) => ({
+        size,
+        stock: sizeInfo.find((s) => s.size === size)?.stock ?? 0,
+    }));
+    const currentStock = allSizes.find((s) => s.size === selectedSize)?.stock ?? 0;
 
     const isWishlisted = wishlistItems.some((p) => p._id === product._id);
 
@@ -106,10 +123,10 @@ const ProductDetailView = ({ id }) => {
                     <div className="product-detail__sizes">
                         <h4>Size</h4>
                         <div className="shop__size-grid product-detail__size-grid">
-                            {sizeInfo.length === 0 && (
+                            {allSizes.length === 0 && (
                                 <p className="text-small home__muted">No sizes available</p>
                             )}
-                            {sizeInfo.map((s) => (
+                            {allSizes.map((s) => (
                                 <button
                                     key={s.size}
                                     type="button"
@@ -159,11 +176,15 @@ const ProductDetailView = ({ id }) => {
             </div>
 
             {related.length > 0 && (
-                <section className="section product-detail__related">
+                <section className="product-detail__related">
                     <Reveal>
-                        <h2>You Might Also Like</h2>
+                        <SectionHeading title="You Might Also Like" />
                     </Reveal>
-                    <ProductGrid products={related} />
+                    <div className="product-detail__related-grid">
+                        {related.map((p, index) => (
+                            <ProductCard key={p._id} product={p} index={index} inView />
+                        ))}
+                    </div>
                 </section>
             )}
 

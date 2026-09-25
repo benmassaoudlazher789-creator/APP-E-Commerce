@@ -1,302 +1,266 @@
-/* --- PAGE PANIER (Cart Page) --- */
+/* --- PAGE PANIER (Cart Page) ---
+   Composants Ant Design (Card, InputNumber, Input.Search, Button, Empty, Row/Col) ;
+   couleurs/typo via le theme ConfigProvider (styles/antdTheme.js). Ce fichier ne gere
+   que la mise en page et le rendu de la miniature. */
 .cart-page {
-    max-width: 1200px; /* Légèrement plus large pour les écrans modernes */
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 140px var(--space-3) var(--space-12); /* Espace pour la Navbar fixe */
-    min-height: 80vh;
+    /* hauteur = contenu reel (la BarNav est dans le flux, pas fixe) */
+    padding: var(--space-6) var(--space-3) var(--space-8);
 }
 
-.cart-empty {
-    max-width: 480px;
-    margin: var(--space-12) auto;
-    text-align: center;
+/* --- EN-TETE "Your Cart" : meme separateur que la barre meta de la page Shop --- */
+.cart-page__header {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-3); /* Plus d'espace entre les éléments */
-    align-items: center;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding-bottom: var(--space-2);
+    margin-bottom: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
 }
 
-.cart-empty h2 {
-    font-size: 2rem;
-    font-weight: 700;
-}
-
-.cart-empty p {
-    color: var(--color-text-secondary);
-}
-
-.cart-empty a {
-    color: var(--color-primary);
-    font-weight: 600;
-    text-decoration: underline;
-    transition: color 0.2s;
-}
-
-.cart-empty a:hover {
-    color: #e04a4a;
-}
-
-/* --- LAYOUT PRINCIPAL (Grille) --- */
-.cart-page__layout {
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: var(--space-4);
-    margin-top: var(--space-3);
-    align-items: start;
+.cart-page__header h1.ant-typography {
+    margin: 0;
 }
 
 .cart-page__items {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3); /* Plus d'espace entre les articles */
+    gap: var(--space-2);
 }
 
-/* --- LIGNE D'ARTICLE (Cart Line) --- */
-.cart-line {
+/* --- ETATS VIDES (Empty antd) --- */
+.cart-empty {
+    max-width: 480px;
+    margin: var(--space-8) auto;
+}
+
+.cart-empty .ant-empty-image {
+    height: auto;
+    margin-bottom: var(--space-2);
+}
+
+.cart-empty__icon {
+    font-size: 40px;
+    color: var(--color-primary);
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+}
+
+.cart-empty .ant-empty-description {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.cart-empty h3.cart-empty__title {
+    margin: 0;
+}
+
+.cart-empty .ant-empty-footer {
+    margin-top: var(--space-3);
+}
+
+/* --- CARD ARTICLE --- */
+/* survol aligne sur .product-card (Shop) : liseré et ombre teintes rouge */
+.cart-line.ant-card-hoverable:hover {
+    border-color: rgba(230, 57, 70, 0.15);
+    box-shadow: 0 12px 28px rgba(230, 57, 70, 0.1);
+}
+
+.cart-line .ant-card-body {
+    padding: var(--space-3);
+}
+
+.cart-line__body {
     display: grid;
-    grid-template-columns: 80px 1fr auto auto auto;
+    grid-template-columns: 104px 1fr auto auto auto;
+    grid-template-areas: "img info qty price remove";
     align-items: center;
     gap: var(--space-3);
-    
-    /* MODERNISATION : Ombre douce au lieu d'une bordure grise */
-    background: #fff;
-    border-radius: 16px;
-    padding: var(--space-3);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.04); /* Ombre légère et diffuse */
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.cart-line:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-}
-
-.cart-line img {
-    width: 80px;
-    height: 80px;
-    object-fit: contain; /* Les chaussures ne sont pas coupées */
+.cart-line__thumb {
+    grid-area: img;
+    display: block;
+    width: 104px;
+    height: 104px;
     border-radius: 12px;
-    background: #f8f9fa; /* Fond subtil si l'image est transparente */
+    overflow: hidden;
+    background: #fafafa;
+}
+
+/* cover cadre sur le produit : --thumb-focus / --thumb-zoom viennent du point focal
+   imageFocus du produit (photos en mise en scene) ; par defaut centre, sans zoom */
+.cart-line__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--thumb-focus, center);
+    transform-origin: var(--thumb-focus, center);
+    transform: scale(var(--thumb-zoom, 1));
+    display: block;
+    transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.cart-line:hover .cart-line__thumb img {
+    transform: scale(calc(var(--thumb-zoom, 1) * 1.06));
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cart-line__thumb img {
+        transition: none;
+    }
+
+    .cart-line:hover .cart-line__thumb img {
+        transform: scale(var(--thumb-zoom, 1));
+    }
 }
 
 .cart-line__info {
+    grid-area: info;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
+}
+
+/* meme petite marque grise en capitales que sur les cards produit */
+.cart-line__brand.ant-typography {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
 }
 
 .cart-line__title {
     font-weight: 700;
     font-size: 1.05rem;
-    color: #1a1a1a;
+    color: var(--color-text);
+    text-decoration: none;
 }
 
-.cart-line__subtitle {
-    font-size: 0.9rem;
-    color: var(--color-text-secondary);
+.cart-line__title:hover {
+    color: var(--color-primary);
 }
 
-/* --- STEPPER (Quantité +/-) --- */
-.cart-line__stepper {
-    display: inline-flex;
-    align-items: center;
-    background: #f8f9fa; /* Fond gris très léger */
-    border-radius: 12px;
-    padding: 2px;
-    gap: 2px;
+/* specificite doublee : les styles CSS-in-JS d'antd sont injectes apres ce fichier et
+   imposent sinon leur propre largeur au mode "spinner" */
+.cart-line__body .cart-line__qty.ant-input-number {
+    grid-area: qty;
+    width: 128px;
 }
 
-.cart-line__stepper button {
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    color: #333;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-}
-
-.cart-line__stepper button:hover:not(:disabled) {
-    background: #e9ecef;
-}
-
-.cart-line__stepper button:active:not(:disabled) {
-    transform: scale(0.9);
-}
-
-.cart-line__stepper button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-.cart-line__stepper span {
-    width: 36px;
-    text-align: center;
-    font-weight: 700;
-    font-size: 15px;
-}
-
-/* --- PRIX ET SUPPRESSION --- */
-.cart-line__price {
+.cart-line__price.ant-typography {
+    grid-area: price;
     font-size: 1.15rem;
-    font-weight: 700;
     color: var(--color-primary);
     white-space: nowrap;
+    min-width: 88px;
+    text-align: right;
 }
 
 .cart-line__remove {
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-secondary);
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.2s;
+    grid-area: remove;
 }
 
-.cart-line__remove:hover {
-    background: #fceceb;
-    color: #d32f2f; /* Rouge foncé pour l'action destructive */
-    border-color: #d32f2f;
-    transform: scale(1.05);
-}
-
-/* --- RÉSUMÉ DU PANIER (Côté droit) --- */
+/* --- ORDER SUMMARY --- */
 .cart-summary {
-    background: #fff;
-    border-radius: 16px;
-    padding: var(--space-4);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.04); /* Ombre douce */
     position: sticky;
-    top: 120px; /* Collé sous la Navbar fixe */
+    top: var(--space-3);
 }
 
-.cart-summary h3 {
+.cart-summary .ant-card-head-title {
     font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: var(--space-2);
-    color: #1a1a1a;
 }
 
 .cart-summary__row {
     display: flex;
     justify-content: space-between;
-    padding: 8px 0;
-    font-size: 15px;
-    color: #555;
+    align-items: baseline;
+    padding: 6px 0;
+}
+
+.cart-summary__note.ant-typography {
+    display: block;
+    font-size: 0.85rem;
+}
+
+.cart-summary .ant-divider.cart-summary__divider {
+    margin: var(--space-2) 0;
+}
+
+.cart-promo__label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.cart-promo__error.ant-typography {
+    display: block;
+    font-size: 12px;
+    margin-top: 4px;
 }
 
 .cart-summary__row--total {
-    border-top: 2px solid #f1f3f5;
-    margin-top: var(--space-2);
-    padding-top: var(--space-3);
-    font-weight: 800;
+    padding: 0 0 var(--space-2);
+}
+
+.cart-summary__row--total .ant-typography {
     font-size: 1.25rem;
-    color: #1a1a1a;
 }
 
-.cart-summary__row--total span:last-child {
+.cart-summary__total.ant-typography {
     color: var(--color-primary);
-}
-
-.cart-summary__note {
-    font-size: 0.85rem;
-    color: var(--color-text-secondary);
-    margin-bottom: var(--space-2);
-}
-
-.cart-summary__checkout {
-    width: 100%;
-    margin-top: var(--space-2);
-    background: var(--color-primary);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 14px 20px;
-    font-weight: 700;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.cart-summary__checkout:hover {
-    background: #e04a4a;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255, 94, 94, 0.3);
 }
 
 .cart-summary__continue {
-    display: block;
-    text-align: center;
-    margin-top: var(--space-2);
-    color: var(--color-text-secondary);
-    font-weight: 600;
-    font-size: 14px;
-    text-decoration: none;
-    transition: color 0.2s;
+    margin-top: var(--space-1);
 }
 
-.cart-summary__continue:hover {
-    color: var(--color-primary);
-}
-
-/* --- RESPONSIVE (MOBILE) --- */
-@media (max-width: 900px) {
-    .cart-page {
-        padding: 120px 16px 40px 16px;
-    }
-    
-    .cart-page__layout {
-        grid-template-columns: 1fr; /* Passe en une seule colonne */
-        gap: var(--space-3);
-    }
-    
+/* --- RESPONSIVE (MOBILE) : Row/Col empilent deja la liste et le resume sous lg --- */
+@media (max-width: 991px) {
     .cart-summary {
-        position: relative; /* Plus sticky sur mobile */
-        top: 0;
+        position: static;
+    }
+}
+
+@media (max-width: 700px) {
+    .cart-page {
+        padding: var(--space-4) var(--space-2) var(--space-6);
     }
 
-    .cart-line {
-        grid-template-columns: 64px 1fr auto;
-        grid-template-areas: 
-            "img info remove"
-            "img stepper price";
+    .cart-line .ant-card-body {
         padding: var(--space-2);
-        gap: var(--space-2);
     }
 
-    .cart-line img {
-        grid-area: img;
-        width: 64px;
-        height: 64px;
+    .cart-line__body {
+        grid-template-columns: 88px 1fr auto;
+        grid-template-areas:
+            "img info remove"
+            "img qty price";
+        gap: var(--space-1) var(--space-2);
     }
-    
-    .cart-line__info {
-        grid-area: info;
+
+    .cart-line__thumb {
+        width: 88px;
+        height: 88px;
     }
-    
-    .cart-line__remove {
-        grid-area: remove;
-        width: 32px;
-        height: 32px;
-        font-size: 14px;
+
+    .cart-line__body .cart-line__qty.ant-input-number {
+        width: 112px;
     }
-    
-    .cart-line__stepper {
-        grid-area: stepper;
-        justify-self: start;
-    }
-    
-    .cart-line__price {
-        grid-area: price;
-        justify-self: end;
+
+    .cart-line__price.ant-typography {
+        min-width: 0;
         font-size: 1rem;
     }
 }

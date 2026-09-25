@@ -1,0 +1,373 @@
+/* page produits du dashboard admin : reutilise les classes admin-dashboard__* (AdminDashboard.css)
+   pour la carte et le tableau, n'ajoute ici que ce qui est propre a la gestion produits */
+
+.admin-products__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+}
+
+.admin-products__search {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex: 1;
+    max-width: 380px;
+    padding: 0 14px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    color: var(--color-text-secondary);
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.admin-products__search:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.12);
+}
+
+.admin-products__search input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 10px 0;
+    font: inherit;
+    font-size: 14px;
+    color: var(--color-text);
+}
+
+.admin-products__add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.admin-products__thumb {
+    display: block;
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+}
+
+.admin-products__thumb--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-secondary);
+}
+
+.admin-products__name {
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: normal !important;
+    min-width: 180px;
+}
+
+.admin-products__category {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(108, 117, 125, 0.12);
+    color: var(--color-text-secondary);
+}
+
+.admin-products__category--men {
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+}
+
+.admin-products__category--women {
+    background: rgba(230, 57, 70, 0.1);
+    color: var(--color-primary);
+}
+
+.admin-products__category--kids {
+    background: rgba(42, 157, 143, 0.12);
+    color: var(--color-success);
+}
+
+.admin-products__stock {
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.admin-products__stock--low {
+    color: #d97706;
+}
+
+.admin-products__stock--out {
+    color: var(--color-error);
+}
+
+.admin-products__sizes-count {
+    display: block;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+}
+
+.admin-products__actions-head {
+    text-align: right !important;
+}
+
+.admin-products__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-1);
+}
+
+.admin-products__action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color var(--transition), color var(--transition), background var(--transition);
+}
+
+.admin-products__action:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.admin-products__action--danger:hover {
+    border-color: var(--color-error);
+    color: #fff;
+    background: var(--color-error);
+}
+
+.admin-products__icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-bg);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: border-color var(--transition), color var(--transition);
+}
+
+.admin-products__icon-btn--danger:hover {
+    border-color: var(--color-error);
+    color: var(--color-error);
+}
+
+/* --- Pagination --- */
+
+.admin-products__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.admin-products__pages {
+    display: flex;
+    gap: 6px;
+}
+
+.admin-products__page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color var(--transition), color var(--transition);
+}
+
+.admin-products__page-btn:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.admin-products__page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.admin-products__page-btn--active,
+.admin-products__page-btn--active:hover:not(:disabled) {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+}
+
+/* --- Modals (edit / delete) --- */
+
+.admin-modal__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2);
+    background: rgba(23, 16, 15, 0.45);
+}
+
+.admin-modal {
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100svh - 2 * var(--space-2));
+    overflow-y: auto;
+    background: var(--color-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card-hover);
+}
+
+.admin-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-3) 0;
+}
+
+.admin-modal__header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.admin-modal__close {
+    display: inline-flex;
+    padding: 6px;
+    border: none;
+    background: none;
+    border-radius: var(--radius);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.admin-modal__close:hover {
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+
+.admin-modal__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-3);
+}
+
+.admin-modal__body p {
+    margin: 0;
+}
+
+.admin-modal__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+}
+
+.admin-modal__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.admin-modal__field .form-input {
+    width: 100%;
+    min-width: 0;
+}
+
+.admin-modal__hint {
+    font-style: normal;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    margin-left: 6px;
+}
+
+.admin-modal__sizes {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.admin-modal__size-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: var(--space-1);
+}
+
+.admin-modal__add-size {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-primary);
+    cursor: pointer;
+}
+
+.admin-modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-1);
+}
+
+.admin-modal__btn {
+    padding: 10px 20px;
+    font-size: 14px;
+}
+
+.admin-modal__btn--danger {
+    background: var(--color-error);
+}
+
+.admin-modal__btn--danger:hover:not(:disabled) {
+    background: #b01f1f;
+}
+
+@media (max-width: 560px) {
+    .admin-products__toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-products__search {
+        max-width: none;
+    }
+
+    .admin-modal__row {
+        grid-template-columns: 1fr;
+    }
+}

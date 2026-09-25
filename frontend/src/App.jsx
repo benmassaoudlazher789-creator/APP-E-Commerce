@@ -22,6 +22,7 @@ import Footer from './components/Footer'
 import Profile from './pages/Profile'
 import AdminProducts from './pages/AdminProducts'
 import AdminDashboard from './pages/dashboard/AdminDashboard'
+import AdminProductsManager from './pages/dashboard/AdminProducts'
 import PageTransition from './components/PageTransition'
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
@@ -207,6 +208,15 @@ function App() {
                 <>
                   <BarNav />
                   <AdminDashboard />
+                </>
+              </PageTransition>
+            } />
+
+            <Route path="/dashboard/admin/products" element={
+              <PageTransition>
+                <>
+                  <BarNav />
+                  <AdminProductsManager />
                 </>
               </PageTransition>
             } />

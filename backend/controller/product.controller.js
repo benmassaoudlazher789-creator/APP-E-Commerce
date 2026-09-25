@@ -1,5 +1,6 @@
 const Product = require("../model/Product")
 const cloudinary = require("../util/cloudinary")
+const { destroyProductImages } = require("../util/productImages")
 const getAnthropicClient = require("../util/anthropic")
 const Anthropic = require("@anthropic-ai/sdk")
 
@@ -78,16 +79,35 @@ exports.getAllProd = async (req, res) => {
 
 };
 
-//search : ?q=... filtre insensible a la casse sur titre/description/categorie/marque
+//search : ?q=... filtre insensible a la casse, "contient" sur le NOM et la MARQUE uniquement.
+//Pas de recherche dans la description (ni la categorie, "shoes" partout) : avec 1 lettre (ex "l"),
+//un texte long la contient presque toujours ("leather", "lightweight"...) et TOUS les produits
+//remontaient dans l'ordre de la base -> la navbar affichait toujours les 5 memes produits.
 exports.searchProd = async (req, res) => {
     try {
         const q = (req.query.q || "").trim();
         if (!q) return res.status(200).json({ msg: "Products:", Prod: [] });
 
-        const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
-        const Prod = await Product.find({
-            $or: [{ title: regex }, { description: regex }, { category: regex }, { brand: regex }],
-        });
+        const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const contains = new RegExp(escaped, "i");
+        const Prod = await Product.find({ $or: [{ title: contains }, { brand: contains }] });
+
+        //tri par pertinence, puis alphabetique a pertinence egale :
+        // 0 = le nom commence par q
+        // 1 = la marque commence par q
+        // 2 = un mot du nom/de la marque commence par q (apres espace, tiret, point, slash)
+        // 3 = q apparait n'importe ou dans le nom/la marque
+        const startsWith = new RegExp(`^${escaped}`, "i");
+        const wordStart = new RegExp(`[\\s\\-./]${escaped}`, "i");
+        const rank = (p) => {
+            const brand = p.brand || "";
+            if (startsWith.test(p.title)) return 0;
+            if (startsWith.test(brand)) return 1;
+            if (wordStart.test(p.title) || wordStart.test(brand)) return 2;
+            return 3;
+        };
+        Prod.sort((a, b) => rank(a) - rank(b) || a.title.localeCompare(b.title));
+
         res.status(200).json({ msg: "Products:", Prod });
     } catch (error) {
         res.status(500).json({ msg: "Fail to search products", error });
@@ -200,13 +220,6 @@ exports.generateDescription = async (req, res) => {
     }
 };
 
-//extrait le public_id cloudinary d'une secure_url pour pouvoir la supprimer
-//(l'app ne stocke que l'URL, pas le public_id, contrairement a User.cloudinary_id)
-const publicIdFromUrl = (url) => {
-    const match = url?.match(/\/upload\/(?:v\d+\/)?(.+)\.\w+$/);
-    return match?.[1];
-};
-
 //delete
 exports.deleteProd = async (req, res) => {
     try {
@@ -222,13 +235,7 @@ exports.deleteProd = async (req, res) => {
         //supprime les images (principale + galerie) sur Cloudinary pour ne pas les laisser
         //orphelines - au mieux (une erreur cote Cloudinary ne doit pas bloquer la suppression
         //du produit, qui reste l'action principale demandee par l'utilisateur)
-        const urls = [prodToFind.imageProd, ...(prodToFind.images || [])].filter(Boolean);
-        await Promise.all(
-            urls.map((url) => {
-                const publicId = publicIdFromUrl(url);
-                return publicId ? cloudinary.uploader.destroy(publicId).catch(() => {}) : Promise.resolve();
-            })
-        );
+        await destroyProductImages(prodToFind);
 
         await Product.findByIdAndDelete(id);
         res.status(200).json({ msg: "produit supprimé!", prodToFind });
