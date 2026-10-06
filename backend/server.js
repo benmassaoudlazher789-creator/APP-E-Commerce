@@ -4,6 +4,11 @@ require("dotenv").config();
 
 const app = express();
 
+// Derrière Nginx (Docker / Render), on fait confiance aux en-têtes X-Forwarded-* pour que
+// req.ip soit la vraie IP du client (nécessaire au rate-limit du login).
+// TRUST_PROXY = nombre de proxys devant l'app (1 par défaut : Nginx ; 2 si Render ajoute le sien).
+app.set("trust proxy", Number(process.env.TRUST_PROXY ?? 1));
+
 // Configuration CORS
 const corsOptions = {
     origin: [

@@ -7,7 +7,7 @@ import {
     FAIL_WISHLIST,
 } from "../actionsType/wishlist.actionType";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:1980';
+import { API_URL } from "../../utils/api";
 
 const authConfig = () => ({
     headers: { authorization: localStorage.getItem("token") },

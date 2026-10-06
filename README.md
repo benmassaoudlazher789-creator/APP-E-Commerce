@@ -199,6 +199,59 @@ node scripts/setUserRole.js you@example.com admin  # promote your account to adm
 
 ---
 
+## Docker
+
+The app ships as two images: `lazher789/redstore-backend` (Express API) and `lazher789/redstore-frontend` (Nginx serving the Vite build and proxying `/api/*` to the backend). Only Nginx is exposed, at **http://localhost:8080**.
+
+### Prerequisites
+
+- Docker Desktop (Compose v2)
+- `backend/.env` filled in (see `backend/.env.example`). `PORT` is forced to `1980` by Compose.
+- A root `.env` copied from `.env.example`, holding **public** build values only (`VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...`). Never put a secret here: it ends up in the JS bundle.
+
+### Run with MongoDB Atlas (default)
+
+```bash
+docker compose up --build        # add -d to run in the background
+```
+
+### Run offline with a local MongoDB
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
+```
+
+This adds a `mongo:7` container (data kept in the `mongo-data` volume) and points the backend's `MONGODB_URI` at it.
+
+### Seed the database
+
+```bash
+docker compose exec backend npm run seed:products
+docker compose exec backend npm run seed:sale
+docker compose exec backend node scripts/setUserRole.js you@example.com admin
+```
+
+(With the local Mongo override, add `-f docker-compose.yml -f docker-compose.local.yml` after `docker compose`.)
+
+### Logs, status, stop
+
+```bash
+docker compose ps                  # container status
+docker compose logs -f backend     # follow backend logs (frontend: Nginx logs)
+docker compose down                # stop and remove containers + network, KEEP volumes (local Mongo data survives)
+docker compose down -v             # same, and ALSO delete named volumes (wipes the local mongo-data database)
+```
+
+### Environment variables specific to Docker
+
+| Where | Variable | Description |
+|---|---|---|
+| frontend container | `BACKEND_URL` | Where Nginx proxies `/api/*`: scheme + host (+ port), **no trailing slash**. Local: `http://backend:1980`, Render: `https://xxx.onrender.com` |
+| backend | `TRUST_PROXY` | Number of proxies in front of Express (default `1` = Nginx). Needed for correct client IPs in the login rate limiter |
+| frontend build arg | `VITE_API_URL` | Leave empty: the app calls `/api` relative to its own origin |
+
+---
+
 ## Useful Scripts
 
 Located in `backend/scripts/` and run from the `backend/` folder:

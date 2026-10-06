@@ -16,7 +16,7 @@ import {
     FAIL_SALE_PRODUCTS,
 } from "../actionsType/Prod.actionType";
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:1980';
+import { API_URL as BASE_URL } from "../../utils/api";
 export const API_URL = `${BASE_URL}/api/product`;
 
 // header d'authentification (token brut, sans préfixe Bearer)

@@ -12,7 +12,7 @@ import { selectCartCount } from "../JS/selectors/cart.selectors";
 import { formatPrice } from "../utils/format";
 import "./BarNav.css";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:1980';
+import { API_URL } from "../utils/api";
 
 const ACCOUNT_ICON = (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">

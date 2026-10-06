@@ -3,7 +3,7 @@ import axios from "axios";
 import { mergeServerCart } from "./cart.action";
 import { getWishlist } from "./wishlist.action";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:1980';
+import { API_URL } from "../../utils/api";
 
 // Le backend ne renvoie pas un format d'erreur unique : la validation
 // (express-validator) renvoie { errors: [{msg, path, ...}] }, alors que les

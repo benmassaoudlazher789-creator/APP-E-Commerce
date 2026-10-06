@@ -1,0 +1,26 @@
+# Surcharge pour travailler hors ligne avec un MongoDB local au lieu d'Atlas :
+#   docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
+services:
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo-data:/data/db
+    # Pas de port publié : Mongo n'est joignable que depuis le réseau Docker
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  backend:
+    environment:
+      # Le code lit MONGODB_URI (config/connectDB.js) : on surcharge la valeur Atlas de backend/.env
+      MONGODB_URI: mongodb://mongo:27017/redstore
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  mongo-data:

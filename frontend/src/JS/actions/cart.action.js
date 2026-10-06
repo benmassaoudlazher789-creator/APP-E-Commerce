@@ -1,7 +1,7 @@
 import axios from "axios";
 import { LOAD_CART, SET_CART, FAIL_CART, CLEAR_CART } from "../actionsType/cart.actionType";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:1980';
+import { API_URL } from "../../utils/api";
 
 const authConfig = () => ({
     headers: { authorization: localStorage.getItem("token") },
