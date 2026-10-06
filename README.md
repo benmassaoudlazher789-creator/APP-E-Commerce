@@ -1,5 +1,7 @@
 # Red Store — Shoe E-Commerce Platform
 
+[![CI/CD](https://github.com/benmassaoudlazher789-creator/APP-E-Commerce/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/benmassaoudlazher789-creator/APP-E-Commerce/actions/workflows/ci-cd.yml)
+
 Red Store is a full-stack **MERN** e-commerce platform for selling shoes. It features a Men / Women / Kids catalog with filters, live search, a wishlist, a per-user persistent cart, a multi-step checkout with **Stripe** payments, and an **admin dashboard** for managing products and orders.
 
 ![React](https://img.shields.io/badge/React_19-20232A?style=flat&logo=react&logoColor=61DAFB)
@@ -21,6 +23,7 @@ Red Store is a full-stack **MERN** e-commerce platform for selling shoes. It fea
 - [Features](#features)
 - [Project Structure](#project-structure)
 - [Installation & Setup](#installation--setup)
+- [CI/CD](#cicd)
 - [Useful Scripts](#useful-scripts)
 - [Screenshots](#screenshots)
 - [Author](#author)
@@ -249,6 +252,30 @@ docker compose down -v             # same, and ALSO delete named volumes (wipes 
 | frontend container | `BACKEND_URL` | Where Nginx proxies `/api/*`: scheme + host (+ port), **no trailing slash**. Local: `http://backend:1980`, Render: `https://xxx.onrender.com` |
 | backend | `TRUST_PROXY` | Number of proxies in front of Express (default `1` = Nginx). Needed for correct client IPs in the login rate limiter |
 | frontend build arg | `VITE_API_URL` | Leave empty: the app calls `/api` relative to its own origin |
+
+---
+
+## CI/CD
+
+A GitHub Actions pipeline ([`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml)) runs on every push and pull request to `main`. A newer push on the same branch cancels the run still in progress.
+
+| Job | Runs on | What it does |
+|---|---|---|
+| `ci` | push + pull request | Node 22 (npm cache). **Backend:** `npm ci`, `node --check` on every `.js` file, then loads every config/util/model/middleware/controller/route module (no database needed). **Frontend:** `npm ci`, `npm run lint`, `npm run build` |
+| `docker` | push only, after `ci` | Builds and pushes `lazher789/redstore-backend` and `lazher789/redstore-frontend` to Docker Hub, tagged `latest` and the short commit SHA. Uses the GitHub Actions Buildx cache (one scope per image) |
+| `deploy` | push only, after `docker` | Calls the Render Deploy Hooks with `curl`. If a hook secret isn't set yet, the job prints a notice and still succeeds |
+
+### Required GitHub secrets
+
+Set them in **Settings → Secrets and variables → Actions → New repository secret**:
+
+| Secret | Used by |
+|---|---|
+| `DOCKERHUB_USERNAME` | `docker` |
+| `DOCKERHUB_TOKEN` | `docker` (Docker Hub access token, Read & Write) |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | `docker` (frontend build arg, public `pk_...` key) |
+| `RENDER_DEPLOY_HOOK_BACKEND` | `deploy` (optional until Render is set up) |
+| `RENDER_DEPLOY_HOOK_FRONTEND` | `deploy` (optional until Render is set up) |
 
 ---
 
