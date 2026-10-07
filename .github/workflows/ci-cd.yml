@@ -87,6 +87,26 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: env.SNYK_TOKEN != ''
 
+      # Snyk lit node_modules : chaque job démarre sur une machine vide, on installe ici
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        if: env.SNYK_TOKEN != ''
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Install backend dependencies
+        if: env.SNYK_TOKEN != ''
+        working-directory: backend
+        run: npm ci --ignore-scripts
+
+      - name: Install frontend dependencies
+        if: env.SNYK_TOKEN != ''
+        working-directory: frontend
+        run: npm ci --ignore-scripts
+
       - name: Snyk - backend
         if: env.SNYK_TOKEN != ''
         uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
