@@ -165,7 +165,7 @@ Create `frontend/.env`:
 Open two terminals:
 
 ```bash
-# Terminal 1: API (nodemon, auto-restart)
+# Terminal 1: API (node --watch, auto-restart)
 cd backend
 npm run dev
 ```
@@ -191,7 +191,7 @@ node scripts/setUserRole.js you@example.com admin  # promote your account to adm
 
 | Location | Command | Description |
 |---|---|---|
-| `backend/` | `npm run dev` | Start the API with nodemon |
+| `backend/` | `npm run dev` | Start the API with `node --watch` (auto-restart) |
 | `backend/` | `npm start` | Start the API with node |
 | `backend/` | `npm run seed:products` | Seed the product catalog |
 | `backend/` | `npm run seed:sale` | Flag selected products as on sale |
@@ -257,13 +257,37 @@ docker compose down -v             # same, and ALSO delete named volumes (wipes 
 
 ## CI/CD
 
-A GitHub Actions pipeline ([`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml)) runs on every push and pull request to `main`. A newer push on the same branch cancels the run still in progress.
+A GitHub Actions pipeline ([`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml)) runs on every push and pull request to `main`. A newer push on the same branch cancels the run still in progress. All jobs run on `ubuntu-24.04`, and every third-party action is pinned to a commit SHA (version in a comment).
+
+```mermaid
+flowchart LR
+    A[lint-frontend] --> D[sonarqube]
+    B[check-backend] --> D
+    C[snyk] --> D
+    D --> E[docker-backend]
+    D --> F[docker-frontend]
+    E --> G[trivy-scan]
+    F --> G
+    G --> H[deploy]
+
+    classDef pr fill:#e8f4ff,stroke:#1f6feb
+    class A,B,C,D pr
+```
+
+Blue jobs run on pushes **and** pull requests; the others run on pushes to `main` only.
 
 | Job | Runs on | What it does |
 |---|---|---|
-| `ci` | push + pull request | Node 22 (npm cache). **Backend:** `npm ci`, `node --check` on every `.js` file, then loads every config/util/model/middleware/controller/route module (no database needed). **Frontend:** `npm ci`, `npm run lint`, `npm run build` |
-| `docker` | push only, after `ci` | Builds and pushes `lazher789/redstore-backend` and `lazher789/redstore-frontend` to Docker Hub, tagged `latest` and the short commit SHA. Uses the GitHub Actions Buildx cache (one scope per image) |
-| `deploy` | push only, after `docker` | Calls the Render Deploy Hooks with `curl`. If a hook secret isn't set yet, the job prints a notice and still succeeds |
+| `lint-frontend` | push + pull request | Node 22 (npm cache): `npm ci`, `npm run lint`, `npm run build` in `frontend/` |
+| `check-backend` | push + pull request | Node 22 (npm cache): `npm ci`, `node --check` on every `.js` file, then loads every config/util/model/middleware/controller/route module (no database needed) |
+| `snyk` | push + pull request | Snyk scan of the `backend/` and `frontend/` npm dependencies, fails on `high` or above. Skipped with a notice if `SNYK_TOKEN` isn't set |
+| `sonarqube` | push + pull request, after the 3 jobs above | SonarQube Cloud analysis of `backend/` and `frontend/src` (config in [`sonar-project.properties`](sonar-project.properties)). Skipped with a notice if `SONAR_TOKEN` isn't set |
+| `docker-backend` | push only, after `sonarqube` | Builds and pushes `lazher789/redstore-backend`, tagged with the **short commit SHA only**. GitHub Actions Buildx cache (`redstore-backend` scope) |
+| `docker-frontend` | push only, after `sonarqube` | Same for `lazher789/redstore-frontend`, with the `VITE_STRIPE_PUBLISHABLE_KEY` build arg (`redstore-frontend` cache scope) |
+| `trivy-scan` | push only, after both image jobs | Trivy scans both SHA-tagged images. The HIGH + CRITICAL report is published in the job summary; the job fails on any **fixable CRITICAL** vulnerability |
+| `deploy` | push only, after `trivy-scan` | Adds the `latest` tag to both scanned images with `docker buildx imagetools create` (no rebuild), then calls the Render Deploy Hooks. If a hook secret isn't set yet, the job prints a notice and still succeeds |
+
+`latest` is only moved once the images have passed the Trivy scan.
 
 ### Required GitHub secrets
 
@@ -271,11 +295,15 @@ Set them in **Settings → Secrets and variables → Actions → New repository 
 
 | Secret | Used by |
 |---|---|
-| `DOCKERHUB_USERNAME` | `docker` |
-| `DOCKERHUB_TOKEN` | `docker` (Docker Hub access token, Read & Write) |
-| `VITE_STRIPE_PUBLISHABLE_KEY` | `docker` (frontend build arg, public `pk_...` key) |
+| `SNYK_TOKEN` | `snyk` (optional: the scan is skipped without it) |
+| `SONAR_TOKEN` | `sonarqube` (optional: the analysis is skipped without it) |
+| `DOCKERHUB_USERNAME` | `docker-backend`, `docker-frontend`, `trivy-scan`, `deploy` |
+| `DOCKERHUB_TOKEN` | same jobs (Docker Hub access token, Read & Write) |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | `docker-frontend` (frontend build arg, public `pk_...` key) |
 | `RENDER_DEPLOY_HOOK_BACKEND` | `deploy` (optional until Render is set up) |
 | `RENDER_DEPLOY_HOOK_FRONTEND` | `deploy` (optional until Render is set up) |
+
+Before enabling SonarQube Cloud, replace the `sonar.organization` and `sonar.projectKey` placeholders in `sonar-project.properties`.
 
 ---
 
