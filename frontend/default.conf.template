@@ -12,6 +12,9 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    # Redirections relatives (ex. /api -> /api/) : garde le port publié (8080) côté navigateur
+    absolute_redirect off;
+
     # DNS du conteneur (127.0.0.11 sous Docker) : le nom du backend est re-résolu
     # régulièrement au lieu d'être figé au démarrage (les IP Render peuvent changer).
     resolver ${NGINX_LOCAL_RESOLVERS} valid=30s ipv6=off;

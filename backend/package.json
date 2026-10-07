@@ -7,7 +7,7 @@
   "type": "commonjs",
   "main": "server",
   "scripts": {
-    "dev": "npx nodemon server",
+    "dev": "node --watch server",
     "start": "node server",
     "seed:products": "node scripts/seedRealProducts.js",
     "seed:sale": "node scripts/markProductsOnSale.js"
@@ -25,8 +25,5 @@
     "mongoose": "^9.7.2",
     "multer": "^2.2.0",
     "stripe": "^22.5.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.14"
   }
 }
