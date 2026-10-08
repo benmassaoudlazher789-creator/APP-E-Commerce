@@ -10,7 +10,8 @@
     "dev": "node --watch server",
     "start": "node server",
     "seed:products": "node scripts/seedRealProducts.js",
-    "seed:sale": "node scripts/markProductsOnSale.js"
+    "seed:sale": "node scripts/markProductsOnSale.js",
+    "reset:password": "node scripts/resetPassword.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.125.0",
