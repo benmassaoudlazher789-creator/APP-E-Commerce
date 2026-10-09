@@ -269,6 +269,7 @@ flowchart LR
     E --> G[trivy-scan]
     F --> G
     G --> H[deploy]
+    H --> I[smoke-test]
 
     classDef pr fill:#e8f4ff,stroke:#1f6feb
     class A,B,C,D pr
@@ -282,10 +283,11 @@ Blue jobs run on pushes **and** pull requests; the others run on pushes to `main
 | `check-backend` | push + pull request | Node 22 (npm cache): `npm ci`, `node --check` on every `.js` file, then loads every config/util/model/middleware/controller/route module (no database needed) |
 | `snyk` | push + pull request | Snyk scan of the `backend/` and `frontend/` npm dependencies, fails on `high` or above. Skipped with a notice if `SNYK_TOKEN` isn't set |
 | `sonarqube` | push + pull request, after the 3 jobs above | SonarQube Cloud analysis of `backend/` and `frontend/src` (config in [`sonar-project.properties`](sonar-project.properties)). Skipped with a notice if `SONAR_TOKEN` isn't set |
-| `docker-backend` | push only, after `sonarqube` | Builds and pushes `lazher789/redstore-backend`, tagged with the **short commit SHA only**. GitHub Actions Buildx cache (`redstore-backend` scope) |
+| `docker-backend` | push only, after `sonarqube` | Builds and pushes `lazher789/redstore-backend`, tagged with the **short commit SHA only**, with `APP_VERSION=<short SHA>` as build arg (returned by `/api/health`). GitHub Actions Buildx cache (`redstore-backend` scope) |
 | `docker-frontend` | push only, after `sonarqube` | Same for `lazher789/redstore-frontend`, with the `VITE_STRIPE_PUBLISHABLE_KEY` build arg (`redstore-frontend` cache scope) |
 | `trivy-scan` | push only, after both image jobs | Trivy scans both SHA-tagged images. The HIGH + CRITICAL report is published in the job summary; the job fails on any **fixable CRITICAL** vulnerability |
 | `deploy` | push only, after `trivy-scan` | Adds the `latest` tag to both scanned images with `docker buildx imagetools create` (no rebuild), then calls the Render Deploy Hooks. If a hook secret isn't set yet, the job prints a notice and still succeeds |
+| `smoke-test` | push only, after `deploy` | Checks the live Render deployment through the frontend URL (see [Health check & smoke test](#health-check--smoke-test)). Skipped with a notice if a Render hook secret isn't set |
 
 `latest` is only moved once the images have passed the Trivy scan.
 
@@ -300,10 +302,32 @@ Set them in **Settings → Secrets and variables → Actions → New repository 
 | `DOCKERHUB_USERNAME` | `docker-backend`, `docker-frontend`, `trivy-scan`, `deploy` |
 | `DOCKERHUB_TOKEN` | same jobs (Docker Hub access token, Read & Write) |
 | `VITE_STRIPE_PUBLISHABLE_KEY` | `docker-frontend` (frontend build arg, public `pk_...` key) |
-| `RENDER_DEPLOY_HOOK_BACKEND` | `deploy` (optional until Render is set up) |
-| `RENDER_DEPLOY_HOOK_FRONTEND` | `deploy` (optional until Render is set up) |
+| `RENDER_DEPLOY_HOOK_BACKEND` | `deploy`, `smoke-test` (optional until Render is set up) |
+| `RENDER_DEPLOY_HOOK_FRONTEND` | `deploy`, `smoke-test` (optional until Render is set up) |
 
 Before enabling SonarQube Cloud, replace the `sonar.organization` and `sonar.projectKey` placeholders in `sonar-project.properties`.
+
+### Health check & smoke test
+
+The backend exposes a public `GET /api/health` endpoint (no authentication, no rate limit, never cached):
+
+```json
+{ "status": "ok", "db": "up", "version": "a1b2c3d", "uptime": 1234, "timestamp": "2026-10-09T12:00:00.000Z" }
+```
+
+- `db` is `"up"` when the Mongoose connection is open (`readyState === 1`), `"down"` otherwise
+- `version` comes from the `APP_VERSION` env var (`"dev"` by default, the short commit SHA in images built by the CI)
+- HTTP `200` when the database is up, `503` otherwise (`status: "error"`)
+
+It is reachable directly on the backend and through the frontend Nginx proxy (`/api/*`). The backend image declares a Docker `HEALTHCHECK` that calls it with `node` on `$PORT` (curl isn't available on Alpine), visible with `docker compose ps`.
+
+After `deploy`, the `smoke-test` job:
+
+1. polls `https://redstore-frontend-tmxu.onrender.com/api/health` every 15 s, for up to 8 minutes (free Render services sleep and wake up slowly), until `version` equals the commit's short SHA and `db` is `"up"`
+2. then checks that `/` and `/cart` (SPA fallback) answer `200` with HTML, and `/api/product/allProd` answers `200` with JSON
+3. fails with an explicit error annotation if a check fails, and writes a results table in the job summary
+
+> Render ignores the Docker `HEALTHCHECK`: set **Health Check Path** to `/api/health` in the backend service settings so Render uses it too. Don't define `APP_VERSION` in the Render dashboard, or it will override the version baked into the image and the smoke test will never match.
 
 ---
 

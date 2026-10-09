@@ -26,6 +26,7 @@ const connectDB = require("./config/connectDB");
 connectDB();
 
 // Importation des routes
+const healthRoutes = require("./routes/health.routes");
 const authRoutes = require("./routes/auth.routes");
 const productRoutes = require("./routes/prod.routes");
 const orderRoutes = require("./routes/order.routes");
@@ -34,6 +35,8 @@ const cartRoutes = require("./routes/cart.routes");
 const adminRoutes = require("./routes/admin.routes");
 
 // Application des routes
+// Santé en premier : publique, hors auth et hors rate-limit
+app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/order", orderRoutes);

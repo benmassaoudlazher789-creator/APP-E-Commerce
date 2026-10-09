@@ -165,6 +165,10 @@ jobs:
         with:
           context: ./backend
           push: true
+          # Version renvoyée par GET /api/health : le smoke test s'en sert pour savoir
+          # que Render sert bien ce commit
+          build-args: |
+            APP_VERSION=${{ steps.vars.outputs.sha_short }}
           tags: ${{ env.BACKEND_IMAGE }}:${{ steps.vars.outputs.sha_short }}
           cache-from: type=gha,scope=redstore-backend
           cache-to: type=gha,mode=max,scope=redstore-backend
@@ -295,3 +299,101 @@ jobs:
           }
           trigger BACKEND "$HOOK_BACKEND"
           trigger FRONTEND "$HOOK_FRONTEND"
+
+  # ---------- 9. Smoke test sur l'environnement Render déployé ----------
+  smoke-test:
+    name: Smoke test (Render)
+    needs: deploy
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    env:
+      FRONTEND_URL: https://redstore-frontend-tmxu.onrender.com
+      HEALTH_URL: https://redstore-frontend-tmxu.onrender.com/api/health
+      PRODUCTS_URL: https://redstore-frontend-tmxu.onrender.com/api/product/allProd
+      # Services gratuits Render : réveil + redéploiement lents
+      TIMEOUT_SECONDS: 480
+      INTERVAL_SECONDS: 15
+      HOOK_BACKEND: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}
+      HOOK_FRONTEND: ${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}
+    steps:
+      - name: Secrets Render absents
+        if: env.HOOK_BACKEND == '' || env.HOOK_FRONTEND == ''
+        run: 'echo "::notice::Secrets RENDER_DEPLOY_HOOK_* absents : aucun déploiement déclenché, smoke test ignoré."'
+
+      - name: Short SHA
+        id: vars
+        if: env.HOOK_BACKEND != '' && env.HOOK_FRONTEND != ''
+        run: echo "sha_short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      # Attend que le backend Render serve CE commit (version = SHA court) avec la base connectée
+      - name: Attente du déploiement (/api/health)
+        if: env.HOOK_BACKEND != '' && env.HOOK_FRONTEND != ''
+        env:
+          EXPECTED_VERSION: ${{ steps.vars.outputs.sha_short }}
+        run: |
+          deadline=$(( $(date +%s) + TIMEOUT_SECONDS ))
+          attempt=0
+          while :; do
+            attempt=$((attempt + 1))
+            body=$(curl -sS --max-time 30 "$HEALTH_URL" 2>/dev/null || true)
+            version=$(printf '%s' "$body" | jq -r '.version // empty' 2>/dev/null || true)
+            db=$(printf '%s' "$body" | jq -r '.db // empty' 2>/dev/null || true)
+            echo "Essai $attempt : version=${version:-?} db=${db:-?} (attendu : version=$EXPECTED_VERSION db=up)"
+
+            if [ "$version" = "$EXPECTED_VERSION" ] && [ "$db" = "up" ]; then
+              echo "HEALTH_RESULT=✅ version $version, db up (essai $attempt)" >> "$GITHUB_ENV"
+              exit 0
+            fi
+
+            if [ "$(date +%s)" -ge "$deadline" ]; then
+              msg="Après ${TIMEOUT_SECONDS}s, $HEALTH_URL renvoie version=${version:-?} db=${db:-?} au lieu de version=$EXPECTED_VERSION db=up."
+              echo "HEALTH_RESULT=❌ $msg" >> "$GITHUB_ENV"
+              echo "::error title=Smoke test : déploiement non confirmé::$msg"
+              exit 1
+            fi
+            sleep "$INTERVAL_SECONDS"
+          done
+
+      - name: Vérification des pages et de l'API
+        if: env.HOOK_BACKEND != '' && env.HOOK_FRONTEND != ''
+        run: |
+          failures=0
+          : > smoke-results.md
+
+          # check <nom> <url> <type de contenu attendu>
+          check() {
+            name="$1"; url="$2"; expected_type="$3"
+            out=$(curl -sS --max-time 30 -o /dev/null -w '%{http_code} %{content_type}' "$url" 2>/dev/null || echo "000 -")
+            code="${out%% *}"; type="${out#* }"
+            if [ "$code" = "200" ] && printf '%s' "$type" | grep -qi "$expected_type"; then
+              echo "| \`$name\` | ✅ | $code | $type |" >> smoke-results.md
+              echo "OK   $name -> $code $type"
+            else
+              echo "| \`$name\` | ❌ | $code | $type |" >> smoke-results.md
+              echo "::error title=Smoke test : $name::$url a répondu $code ($type), attendu 200 avec $expected_type."
+              failures=$((failures + 1))
+            fi
+          }
+
+          check "/" "$FRONTEND_URL/" "text/html"
+          check "/cart (fallback SPA)" "$FRONTEND_URL/cart" "text/html"
+          check "/api/product/allProd" "$PRODUCTS_URL" "application/json"
+
+          [ "$failures" -eq 0 ] || exit 1
+
+      - name: Résumé
+        if: ${{ always() && env.HOOK_BACKEND != '' && env.HOOK_FRONTEND != '' }}
+        run: |
+          {
+            echo "## Smoke test : $FRONTEND_URL"
+            echo
+            echo "**Santé :** ${HEALTH_RESULT:-❌ vérification de santé non terminée}"
+            echo
+            if [ -s smoke-results.md ]; then
+              echo "| Vérification | Résultat | HTTP | Content-Type |"
+              echo "|---|---|---|---|"
+              cat smoke-results.md
+            else
+              echo "Vérifications des pages non exécutées (santé non confirmée)."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
