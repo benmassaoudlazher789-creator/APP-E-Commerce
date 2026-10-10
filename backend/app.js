@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
+app.disable("x-powered-by");
 
 // Derrière Nginx (Docker / Render), on fait confiance aux en-têtes X-Forwarded-* pour que
 // req.ip soit la vraie IP du client (nécessaire au rate-limit du login).
