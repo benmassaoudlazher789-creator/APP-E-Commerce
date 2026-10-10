@@ -44,8 +44,8 @@ exports.addProduct = async (req, res) => {
         res.status(201).json({ msg: "product created successfully", newProd })
 
     } catch (error) {
-
-        res.status(500).json({ msg: "Fail to add this product", error });
+        console.error("❌ addProduct error:", error.message, error.stack);
+        res.status(500).json({ msg: "Fail to add this product", error: error.message });
     }
 
 };
@@ -73,8 +73,8 @@ exports.getAllProd = async (req, res) => {
 
 
     } catch (error) {
-
-        res.status(500).json({ msg: "Fail to get products", error });
+        console.error("❌ getAllProd error:", error.message, error.stack);
+        res.status(500).json({ msg: "Fail to get products", error: error.message });
     }
 
 };
@@ -110,7 +110,8 @@ exports.searchProd = async (req, res) => {
 
         res.status(200).json({ msg: "Products:", Prod });
     } catch (error) {
-        res.status(500).json({ msg: "Fail to search products", error });
+        console.error("❌ searchProd error:", error.message, error.stack);
+        res.status(500).json({ msg: "Fail to search products", error: error.message });
     }
 };
 
@@ -130,7 +131,8 @@ exports.getOneProd = async (req, res) => {
         if (error.name === "CastError") {
             return res.status(400).json({ msg: "Invalid product id" });
         }
-        res.status(500).json({ msg: "Fail to get this prod", error });
+        console.error("❌ getOneProd error:", error.message, error.stack);
+        res.status(500).json({ msg: "Fail to get this prod", error: error.message });
     }
 
 };
@@ -141,8 +143,8 @@ exports.getMyProd = async (req, res) => {
         res.status(200).json({ msg: "your product is:", myListProd });
 
     } catch (error) {
-
-        res.status(500).json({ msg: "Fail to get your prod", error });
+        console.error("❌ getMyProd error:", error.message, error.stack);
+        res.status(500).json({ msg: "Fail to get your prod", error: error.message });
     }
 
 }
@@ -166,9 +168,8 @@ exports.updateMyProd = async (req, res) => {
         res.status(200).json({ msg: "Updated", prodToUpdate });
 
     } catch (error) {
-
-        res.status(500).json({ msg: "Fail to update this prod", error });
-
+        console.error("❌ updateMyProd error:", error.message, error.stack);
+        res.status(500).json({ msg: "Fail to update this prod", error: error.message });
     }
 
 };
@@ -216,7 +217,8 @@ exports.generateDescription = async (req, res) => {
         ) {
             return res.status(502).json({ msg: "AI service is not configured (missing ANTHROPIC_API_KEY)" });
         }
-        res.status(500).json({ msg: "Fail to generate description", error });
+        console.error("❌ generateDescription error:", error.message, error.stack);
+        res.status(500).json({ msg: "Fail to generate description", error: error.message });
     }
 };
 
@@ -241,9 +243,8 @@ exports.deleteProd = async (req, res) => {
         res.status(200).json({ msg: "produit supprimé!", prodToFind });
 
     } catch (error) {
-
-        res.status(500).json({ msg: "Fail to update this prod", error });
-
+        console.error("❌ deleteProd error:", error.message, error.stack);
+        res.status(500).json({ msg: "Fail to update this prod", error: error.message });
     }
 
 };
