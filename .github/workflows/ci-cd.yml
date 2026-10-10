@@ -41,13 +41,17 @@ jobs:
       - run: npm run lint
       - run: npm run build
 
-  # ---------- 2. Backend : pas de tests, vérification syntaxe + chargement des modules ----------
+  # ---------- 2. Backend : tests Jest + couverture, vérification syntaxe + chargement des modules ----------
   check-backend:
     name: Check backend
     runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: backend
+    env:
+      # Binaire mongod de mongodb-memory-server hors de node_modules (supprimé par npm ci)
+      # pour pouvoir le mettre en cache entre les runs
+      MONGOMS_DOWNLOAD_DIR: ${{ github.workspace }}/.cache/mongodb-binaries
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -57,7 +61,30 @@ jobs:
           cache: npm
           cache-dependency-path: backend/package-lock.json
 
+      # La version de MongoDB téléchargée dépend de celle de mongodb-memory-server
+      - name: Version de mongodb-memory-server
+        id: mongoms
+        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/mongodb-memory-server'].version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache du binaire mongod
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.MONGOMS_DOWNLOAD_DIR }}
+          key: mongoms-${{ runner.os }}-${{ steps.mongoms.outputs.version }}
+
       - run: npm ci
+
+      # Base MongoDB en mémoire, services externes mockés : aucun secret ni appel réseau
+      - name: Tests + couverture
+        run: npm run test:coverage
+
+      - name: Rapport de couverture (pour SonarQube)
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: backend-coverage
+          path: backend/coverage/lcov.info
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Syntax check (node --check)
         run: find . -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 -n1 node --check
@@ -136,6 +163,14 @@ jobs:
         with:
           # Historique complet : nécessaire à Sonar pour attribuer le nouveau code
           fetch-depth: 0
+
+      # lcov.info produit par check-backend, lu via sonar.javascript.lcov.reportPaths
+      - name: Rapport de couverture backend
+        if: env.SONAR_TOKEN != ''
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: backend-coverage
+          path: backend/coverage
 
       - name: SonarQube scan
         if: env.SONAR_TOKEN != ''
