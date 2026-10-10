@@ -11,7 +11,41 @@
     "start": "node server",
     "seed:products": "node scripts/seedRealProducts.js",
     "seed:sale": "node scripts/markProductsOnSale.js",
-    "reset:password": "node scripts/resetPassword.js"
+    "reset:password": "node scripts/resetPassword.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "<rootDir>/tests/**/*.test.js"
+    ],
+    "setupFiles": [
+      "<rootDir>/tests/setup/env.js"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup/db.js"
+    ],
+    "testTimeout": 30000,
+    "collectCoverageFrom": [
+      "app.js",
+      "config/**/*.js",
+      "controller/**/*.js",
+      "middlewares/**/*.js",
+      "model/**/*.js",
+      "routes/**/*.js",
+      "util/**/*.js"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text-summary",
+      [
+        "lcov",
+        {
+          "projectRoot": ".."
+        }
+      ]
+    ]
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.125.0",
@@ -26,5 +60,10 @@
     "mongoose": "^9.7.2",
     "multer": "^2.2.0",
     "stripe": "^22.5.0"
+  },
+  "devDependencies": {
+    "jest": "^30.5.2",
+    "mongodb-memory-server": "^11.3.0",
+    "supertest": "^7.3.1"
   }
 }

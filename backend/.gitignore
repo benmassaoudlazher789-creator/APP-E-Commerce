@@ -1,2 +1,4 @@
 .env
 node_modules
+# Tests : rapport de couverture généré par npm run test:coverage
+coverage

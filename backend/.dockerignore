@@ -9,3 +9,7 @@ dist
 *.md
 Dockerfile
 .dockerignore
+
+# Tests et rapports de couverture : inutiles dans l'image de production
+tests
+coverage

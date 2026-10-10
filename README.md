@@ -23,6 +23,7 @@ Red Store is a full-stack **MERN** e-commerce platform for selling shoes. It fea
 - [Features](#features)
 - [Project Structure](#project-structure)
 - [Installation & Setup](#installation--setup)
+- [Tests](#tests)
 - [CI/CD](#cicd)
 - [Useful Scripts](#useful-scripts)
 - [Screenshots](#screenshots)
@@ -195,6 +196,8 @@ node scripts/setUserRole.js you@example.com admin  # promote your account to adm
 | `backend/` | `npm start` | Start the API with node |
 | `backend/` | `npm run seed:products` | Seed the product catalog |
 | `backend/` | `npm run seed:sale` | Flag selected products as on sale |
+| `backend/` | `npm test` | Run the Jest test suite (see [Tests](#tests)) |
+| `backend/` | `npm run test:coverage` | Run the tests with a coverage report in `backend/coverage/` |
 | `frontend/` | `npm run dev` | Start the Vite dev server |
 | `frontend/` | `npm run build` | Production build |
 | `frontend/` | `npm run preview` | Preview the production build |
@@ -255,6 +258,32 @@ docker compose down -v             # same, and ALSO delete named volumes (wipes 
 
 ---
 
+## Tests
+
+The backend has an automated test suite built with **Jest** and **Supertest**, in [`backend/tests/`](backend/tests).
+
+```bash
+cd backend
+npm test                 # run all tests
+npm run test:coverage    # same, plus a coverage report (backend/coverage/, lcov + summary)
+```
+
+- **No external services.** The tests run against an in-memory MongoDB ([mongodb-memory-server](https://github.com/typegoose/mongodb-memory-server)), never Atlas. Cloudinary, Stripe and the Anthropic SDK are mocked, so nothing goes over the network. The only download is the `mongod` binary, fetched once on the first `npm install` and then cached.
+- **No real secrets.** `backend/.env` is never loaded during tests (`dotenv` is only called in `server.js`). [`tests/setup/env.js`](backend/tests/setup/env.js) sets fake values (`SECRET_KEY`, Stripe/Cloudinary/Anthropic keys).
+- **Isolation.** Every test file gets its own database, which is emptied after each test ([`tests/setup/db.js`](backend/tests/setup/db.js)).
+- **App / server split.** `app.js` builds and exports the Express app (routes and middleware). `server.js` loads `.env`, connects to MongoDB and calls `listen`. Supertest imports `app.js` directly.
+
+| File | What it covers |
+|---|---|
+| `health.test.js` | `GET /api/health` → 200, `db: "up"`, `no-store`, no sensitive fields |
+| `product.test.js` | `GET /api/product/allProd` (empty list, data, filters, limit), `GET /api/product/prod/:id` |
+| `auth.test.js` | Register (201 + token, hashed password, duplicate email, validation), login (success, wrong password, unknown email), `/current`. Checks that no password is ever returned |
+| `protection.test.js` | `isAuth`: no token (403), invalid/forged token (401), deleted user (404). `isRole("admin")`: non-admin users get 403 on admin and product write routes, and admins get access |
+
+In CI, the `check-backend` job runs `npm run test:coverage`. It caches the `mongod` binary (key: the `mongodb-memory-server` version) and uploads `lcov.info` as an artifact. The `sonarqube` job reads that file through `sonar.javascript.lcov.reportPaths`.
+
+---
+
 ## CI/CD
 
 A GitHub Actions pipeline ([`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml)) runs on every push and pull request to `main`. A newer push on the same branch cancels the run still in progress. All jobs run on `ubuntu-24.04`, and every third-party action is pinned to a commit SHA (version in a comment).
@@ -280,9 +309,9 @@ Blue jobs run on pushes **and** pull requests; the others run on pushes to `main
 | Job | Runs on | What it does |
 |---|---|---|
 | `lint-frontend` | push + pull request | Node 22 (npm cache): `npm ci`, `npm run lint`, `npm run build` in `frontend/` |
-| `check-backend` | push + pull request | Node 22 (npm cache): `npm ci`, `node --check` on every `.js` file, then loads every config/util/model/middleware/controller/route module (no database needed) |
+| `check-backend` | push + pull request | Node 22 (npm cache + cached `mongod` binary): `npm ci`, `npm run test:coverage` (Jest, in-memory MongoDB, `lcov.info` uploaded as the `backend-coverage` artifact), `node --check` on every `.js` file, then loads every config/util/model/middleware/controller/route module (no database needed) |
 | `snyk` | push + pull request | Snyk scan of the `backend/` and `frontend/` npm dependencies, fails on `high` or above. Skipped with a notice if `SNYK_TOKEN` isn't set |
-| `sonarqube` | push + pull request, after the 3 jobs above | SonarQube Cloud analysis of `backend/` and `frontend/src` (config in [`sonar-project.properties`](sonar-project.properties)). Skipped with a notice if `SONAR_TOKEN` isn't set |
+| `sonarqube` | push + pull request, after the 3 jobs above | SonarQube Cloud analysis of `backend/` and `frontend/src`, with backend test coverage from the `backend-coverage` artifact (config in [`sonar-project.properties`](sonar-project.properties)). Skipped with a notice if `SONAR_TOKEN` isn't set |
 | `docker-backend` | push only, after `sonarqube` | Builds and pushes `lazher789/redstore-backend`, tagged with the **short commit SHA only**, with `APP_VERSION=<short SHA>` as build arg (returned by `/api/health`). GitHub Actions Buildx cache (`redstore-backend` scope) |
 | `docker-frontend` | push only, after `sonarqube` | Same for `lazher789/redstore-frontend`, with the `VITE_STRIPE_PUBLISHABLE_KEY` build arg (`redstore-frontend` cache scope) |
 | `trivy-scan` | push only, after both image jobs | Trivy scans both SHA-tagged images. The HIGH + CRITICAL report is published in the job summary; the job fails on any **fixable CRITICAL** vulnerability |
