@@ -36,14 +36,17 @@ const server = app.listen(PORT, (err) => {
         : console.log(`✅ The server is running on http://localhost:${PORT}`);
 });
 
-// --- Arrêt propre (Render envoie SIGTERM lors des déploiements/redémarrages)
-process.on("SIGTERM", () => {
+process.on("SIGTERM", async () => {
     console.log("⚠️ SIGTERM reçu, fermeture du serveur...");
-    server.close(() => {
-        mongoose.connection.close(false, () => {
+    server.close(async () => {
+        try {
+            await mongoose.connection.close();   // ✅ API moderne Mongoose 7+
             console.log("✅ Serveur et connexion Mongo fermés proprement");
             process.exit(0);
-        });
+        } catch (error) {
+            console.error("❌ Erreur lors de la fermeture:", error.message);
+            process.exit(1);
+        }
     });
 });
 
