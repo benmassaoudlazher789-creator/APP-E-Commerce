@@ -24,6 +24,7 @@ const router = express.Router()
    router.post('/generate-description', isAuth, isRole("admin"), generateDescription)
    //get all des produits
    router.get ('/allProd' , getAllProd)
+   router.get('/', getAllProd)
    //recherche full-text (titre/description/categorie/marque)
    router.get ('/search' , searchProd)
    //get one
