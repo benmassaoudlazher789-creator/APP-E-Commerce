@@ -1,6 +1,11 @@
 # Red Store — Shoe E-Commerce Platform
 
-[![CI/CD](https://github.com/benmassaoudlazher789-creator/APP-E-Commerce/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/benmassaoudlazher789-creator/APP-E-Commerce/actions/workflows/ci-cd.yml)
+[![CI/CD](https://github.com/benmassaoudlazher789-creator/APP-E-Commerce/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/benmassaoudlazher789-creator/APP-E-Commerce/actions/workflows/ci-cd.yml)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=bennassaoudlazher789-creator_APP-E-Commerce&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=bennassaoudlazher789-creator_APP-E-Commerce)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=bennassaoudlazher789-creator_APP-E-Commerce&metric=coverage)](https://sonarcloud.io/summary/new_code?id=bennassaoudlazher789-creator_APP-E-Commerce)
+
+🌐 **Live demo:** https://stupendous-medovik-046a30.netlify.app  
+🔧 **API health:** https://redstore-backend-35r1.onrender.com/api/health
 
 Red Store is a full-stack **MERN** e-commerce platform for selling shoes. It features a Men / Women / Kids catalog with filters, live search, a wishlist, a per-user persistent cart, a multi-step checkout with **Stripe** payments, and an **admin dashboard** for managing products and orders.
 
@@ -369,22 +374,6 @@ Located in `backend/scripts/` and run from the `backend/` folder:
 - **`markProductsOnSale.js`**: marks a selection of products as on sale, with an original price and a discount percentage, to populate the *Sale* page (`npm run seed:sale`).
 
 The other files in this folder are one-off data-maintenance scripts (image and category fixes).
-
----
-
-## Screenshots
-
-> _Screenshots coming soon._
-
-<!--
-| Home | Shop |
-|---|---|
-| ![Home](docs/screenshots/home.png) | ![Shop](docs/screenshots/shop.png) |
-
-| Checkout | Admin Dashboard |
-|---|---|
-| ![Checkout](docs/screenshots/checkout.png) | ![Admin](docs/screenshots/admin-dashboard.png) |
--->
 
 ---
 
