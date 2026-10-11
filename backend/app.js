@@ -8,7 +8,6 @@ app.disable("x-powered-by");
 
 // Derrière Nginx (Docker / Render), on fait confiance aux en-têtes X-Forwarded-* pour que
 // req.ip soit la vraie IP du client (nécessaire au rate-limit du login).
-// TRUST_PROXY = nombre de proxys devant l'app (1 par défaut : Nginx ; 2 si Render ajoute le sien).
 app.set("trust proxy", Number(process.env.TRUST_PROXY ?? 1));
 
 // Configuration CORS
@@ -23,6 +22,28 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// ---- Protection anti NoSQL Injection (compatible Express 5) ----
+// Supprime récursivement les clés commençant par "$" ou contenant un "." dans req.body
+// et req.params. En Express 5, req.query est en lecture seule, donc on n'y touche pas.
+const sanitizeObject = (obj) => {
+    if (obj && typeof obj === "object") {
+        for (const key of Object.keys(obj)) {
+            if (key.startsWith("$") || key.includes(".")) {
+                delete obj[key];
+            } else {
+                sanitizeObject(obj[key]);
+            }
+        }
+    }
+};
+
+app.use((req, res, next) => {
+    if (req.body) sanitizeObject(req.body);
+    if (req.params) sanitizeObject(req.params);
+    next();
+});
+// ---------------------------------------------------------------
+
 // Importation des routes
 const healthRoutes = require("./routes/health.routes");
 const authRoutes = require("./routes/auth.routes");
@@ -33,7 +54,6 @@ const cartRoutes = require("./routes/cart.routes");
 const adminRoutes = require("./routes/admin.routes");
 
 // Application des routes
-// Santé en premier : publique, hors auth et hors rate-limit
 app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/product", productRoutes);
