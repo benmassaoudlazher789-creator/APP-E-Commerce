@@ -1,6 +1,6 @@
 # Red Store — Shoes E-Commerce Platform
 
-[![CI/CD](https://github.com/benmassaoudlazher789-creator/APP-E-Commerce/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/benmassaoudlazher789-creator/APP-E-Commerce/actions/workflows/ci-cd.yml)
+[![CI/CD](https://github.com//APP-E-Commerce/actions/workflows/ci-cd.yml/badge.svg)](https://github.com//APP-E-Commerce/actions/workflows/ci-cd.yml)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=benmassaoudlazher789-creator_APP-E-Commerce&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=benmassaoudlazher789-creator_APP-E-Commerce)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=benmassaoudlazher789-creator_APP-E-Commerce&metric=coverage)](https://sonarcloud.io/summary/new_code?id=benmassaoudlazher789-creator_APP-E-Commerce)
 
@@ -124,7 +124,7 @@ The repository contains **two independent npm projects**. There is no root `pack
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/benmassaoudlazher789-creator/APP-E-Commerce.git
+git clone https://github.com//APP-E-Commerce.git
 cd APP-E-Commerce
 ```
 
@@ -381,5 +381,5 @@ The other files in this folder are one-off data-maintenance scripts (image and c
 
 **Lazher Ben Massaoud**
 
-- GitHub: [@benmassaoudlazher789-creator](https://github.com/benmassaoudlazher789-creator)
+- GitHub: [@](https://github.com/)
 - LinkedIn: [Lazher Ben Massaoud](https://www.linkedin.com/in/ben-massaoud-lazher/) <!-- TODO: replace with your LinkedIn URL -->
