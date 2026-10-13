@@ -1,8 +1,8 @@
 # Red Store — Shoes E-Commerce Platform
 
 [![CI/CD](https://github.com/benmassaoudlazher789-creator/APP-E-Commerce/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/benmassaoudlazher789-creator/APP-E-Commerce/actions/workflows/ci-cd.yml)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=bennassaoudlazher789-creator_APP-E-Commerce&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=bennassaoudlazher789-creator_APP-E-Commerce)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=bennassaoudlazher789-creator_APP-E-Commerce&metric=coverage)](https://sonarcloud.io/summary/new_code?id=bennassaoudlazher789-creator_APP-E-Commerce)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=benmassaoudlazher789-creator_APP-E-Commerce&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=benmassaoudlazher789-creator_APP-E-Commerce)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=benmassaoudlazher789-creator_APP-E-Commerce&metric=coverage)](https://sonarcloud.io/summary/new_code?id=benmassaoudlazher789-creator_APP-E-Commerce)
 
 🌐 **Live demo:** https://stupendous-medovik-046a30.netlify.app  
 🔧 **API health:** https://redstore-backend-35r1.onrender.com/api/health
