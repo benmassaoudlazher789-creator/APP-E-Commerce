@@ -43,6 +43,10 @@ app.use((req, res, next) => {
 
 // Endpoint /metrics (public, non sanitisé)
 app.get("/metrics", async (req, res) => {
+     const token = req.headers.authorization?.replace("Bearer ", "");
+    if (token !== process.env.METRICS_TOKEN) {
+        return res.status(401).json({ msg: "Unauthorized" });
+    }
     res.set("Content-Type", client.register.contentType);
     res.end(await client.register.metrics());
 });
