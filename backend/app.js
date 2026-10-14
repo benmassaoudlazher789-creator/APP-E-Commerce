@@ -1,16 +1,17 @@
-// Création de l'application Express, sans connexion MongoDB ni listen :
-// importable telle quelle par les tests (supertest). Le démarrage est dans server.js.
+const client = require("prom-client");
+client.collectDefaultMetrics({ 
+    register: client.register, 
+    prefix: "redstore_" 
+});
+
 const express = require("express");
 const cors = require("cors");
 
 const app = express();
 app.disable("x-powered-by");
 
-// Derrière Nginx (Docker / Render), on fait confiance aux en-têtes X-Forwarded-* pour que
-// req.ip soit la vraie IP du client (nécessaire au rate-limit du login).
 app.set("trust proxy", Number(process.env.TRUST_PROXY ?? 1));
 
-// Configuration CORS
 const corsOptions = {
     origin: [
         "http://localhost:5173",
@@ -22,9 +23,31 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// ---- Prometheus metrics ----
+const httpRequestCounter = new client.Counter({
+    name: "redstore_http_requests_total",
+    help: "Total HTTP requests",
+    labelNames: ["method", "route", "status"],
+});
+
+app.use((req, res, next) => {
+    res.on("finish", () => {
+        httpRequestCounter.inc({
+            method: req.method,
+            route: req.route?.path || req.path,
+            status: res.statusCode,
+        });
+    });
+    next();
+});
+
+// Endpoint /metrics (public, non sanitisé)
+app.get("/metrics", async (req, res) => {
+    res.set("Content-Type", client.register.contentType);
+    res.end(await client.register.metrics());
+});
+
 // ---- Protection anti NoSQL Injection (compatible Express 5) ----
-// Supprime récursivement les clés commençant par "$" ou contenant un "." dans req.body
-// et req.params. En Express 5, req.query est en lecture seule, donc on n'y touche pas.
 const sanitizeObject = (obj) => {
     if (obj && typeof obj === "object") {
         for (const key of Object.keys(obj)) {
@@ -42,9 +65,8 @@ app.use((req, res, next) => {
     if (req.params) sanitizeObject(req.params);
     next();
 });
-// ---------------------------------------------------------------
 
-// Importation des routes
+// ---- Importation et application des routes ----
 const healthRoutes = require("./routes/health.routes");
 const authRoutes = require("./routes/auth.routes");
 const productRoutes = require("./routes/prod.routes");
@@ -53,7 +75,6 @@ const paymentRoutes = require("./routes/payment.routes");
 const cartRoutes = require("./routes/cart.routes");
 const adminRoutes = require("./routes/admin.routes");
 
-// Application des routes
 app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/product", productRoutes);
