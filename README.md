@@ -383,3 +383,46 @@ The other files in this folder are one-off data-maintenance scripts (image and c
 
 - GitHub: [@](https://github.com/)
 - LinkedIn: [Lazher Ben Massaoud](https://www.linkedin.com/in/ben-massaoud-lazher/) <!-- TODO: replace with your LinkedIn URL -->
+
+## Rollback
+
+En cas de problème en production, voici la procédure testée de rollback.
+
+### Backend (Render)
+
+1. Va sur [dashboard.render.com](https://dashboard.render.com) → `redstore-backend`
+2. Onglet **Deploys**
+3. Trouve le dernier deploy **stable** (avant le problème)
+4. Clique sur **"Rollback"** à droite du deploy
+5. Confirme dans la popup
+6. Attends 20-30 sec
+7. Vérifie : `curl https://redstore-backend-35r1.onrender.com/api/health`
+   → `version` doit être l'ancien SHA
+
+⚠️ **Note** : après un rollback, Render désactive "Auto-Deploy".
+Réactive-le dans Settings → Auto-Deploy.
+
+### Frontend (Netlify)
+
+1. Va sur [app.netlify.com](https://app.netlify.com) → ton site
+2. Onglet **Deploys**
+3. Trouve le dernier deploy **stable**
+4. Clique sur **"Publish deploy"**
+5. Attends 1-2 min
+
+### Base de données (MongoDB Atlas)
+
+⚠️ **Attention** : le restore écrase les données actuelles.
+
+1. Va sur [cloud.mongodb.com](https://cloud.mongodb.com)
+2. Cluster → **Backup**
+3. Trouve un snapshot antérieur
+4. **Restore** → cluster cible
+5. Confirme
+
+### Vérification post-rollback
+
+1. `https://redstore-backend-35r1.onrender.com/api/health` → `status: ok`
+2. `https://stupendous-medovik-046a30.netlify.app` → site charge
+3. UptimeRobot → monitor vert
+4. Grafana → metrics arrivent
