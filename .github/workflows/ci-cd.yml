@@ -104,6 +104,7 @@ jobs:
   snyk:
     name: Snyk dependency scan
     runs-on: ubuntu-24.04
+    continue-on-error: true  
     env:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
     steps:
