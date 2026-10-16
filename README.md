@@ -7,7 +7,8 @@
 🌐 **Live demo:** https://stupendous-medovik-046a30.netlify.app  
 🔧 **API health:** https://redstore-backend-35r1.onrender.com/api/health
 
-Red Store is a full-stack **MERN** e-commerce platform for selling shoes. It features a Men / Women / Kids catalog with filters, live search, a wishlist, a per-user persistent cart, a multi-step checkout with **Stripe** payments, and an **admin dashboard** for managing products and orders.
+Red Store is a full-stack **MERN**  e-commerce platform for selling shoes. It features a Men / Women / Kids catalog with filters, live search, a wishlist, a per-user persistent cart, a multi-step checkout with **Stripe** payments, and an **admin dashboard** for managing products and orders.
+
 
 ![React](https://img.shields.io/badge/React_19-20232A?style=flat&logo=react&logoColor=61DAFB)
 ![Redux](https://img.shields.io/badge/Redux-764ABC?style=flat&logo=redux&logoColor=white)
