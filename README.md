@@ -426,3 +426,16 @@ Réactive-le dans Settings → Auto-Deploy.
 2. `https://stupendous-medovik-046a30.netlify.app` → site charge
 3. UptimeRobot → monitor vert
 4. Grafana → metrics arrivent
+## Kubernetes (Minikube)
+
+Le projet inclut des manifests Kubernetes dans `k8s/` pour déployer l'application sur un cluster local.
+
+### Déploiement
+
+```bash
+minikube start --driver=docker
+kubectl create secret generic redstore-secrets --from-env-file=.env.k8s
+kubectl apply -f k8s/
+kubectl get pods
+kubectl port-forward service/redstore-frontend 8090:80
+# Ouvrir http://localhost:8090
