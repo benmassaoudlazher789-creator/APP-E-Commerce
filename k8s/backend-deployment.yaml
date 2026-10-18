@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redstore-backend
+  labels:
+    app: redstore-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: redstore-backend
+  template:
+    metadata:
+      labels:
+        app: redstore-backend
+    spec:
+      containers:
+      - name: backend
+        image: lazher789/redstore-backend:latest
+        ports:
+        - containerPort: 1980
+        envFrom:
+        - secretRef:
+            name: redstore-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 1980
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 1980
+          initialDelaySeconds: 5
+          periodSeconds: 5

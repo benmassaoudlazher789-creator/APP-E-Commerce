@@ -2,3 +2,4 @@
 node_modules
 # Tests : rapport de couverture généré par npm run test:coverage
 coverage
+.env.k8s 

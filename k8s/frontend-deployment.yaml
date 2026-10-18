@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redstore-frontend
+  labels:
+    app: redstore-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: redstore-frontend
+  template:
+    metadata:
+      labels:
+        app: redstore-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: lazher789/redstore-frontend:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/custom.conf
+          subPath: custom.conf
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
